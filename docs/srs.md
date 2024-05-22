@@ -27,8 +27,18 @@ Onderstaand vind je de eisen die verwerkt moeten worden bij het uitwerken van he
 |-----------------------------------------------------------------------------|--------|
 | User can login with Google                                                  | Must   |
 | User can play a game of tic tac toe with a random player                    | Must   |
-| User can add friends with username                                          | Must   |
+| User can send friend invite                                                 | Must   |
 | User can see the status of a friend invitation                              | Must   |
-| User can invite friends to play a game of tic tac toe                       | Must   |
+| User can accept or decline a friend invitation                              | Must   |
+| User can send friends a game invite                                         | Must   |
 | User can accept or decline a game invitation                                | Must   |
 | Leader board about who has won the most games today, this week and all time | Must   |
+
+
+### Pages
+
+| Page         | Description                                                                          | 
+|--------------|--------------------------------------------------------------------------------------|
+| Landing Page | User can see the leaderboard and play game with randoms or choose a friend to invite | 
+| Friends Page | User can manage friends and manage friend invites in and outgoing                    |
+| Login Page   | User can login with Google                                                           |
