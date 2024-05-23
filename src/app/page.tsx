@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import Leaderboard from "@/components/homepage/leaderboard";
 
 export default function Home() {
   return (
@@ -17,6 +18,7 @@ export default function Home() {
           </Button>
         </div>
       </div>
+      <Leaderboard />
     </main>
   );
 }
