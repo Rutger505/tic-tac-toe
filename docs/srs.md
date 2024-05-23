@@ -34,7 +34,6 @@ Onderstaand vind je de eisen die verwerkt moeten worden bij het uitwerken van he
 | User can accept or decline a game invitation                                | Must   |
 | Leader board about who has won the most games today, this week and all time | Must   |
 
-
 ### Pages
 
 | Page         | Description                                                                          | 
@@ -42,3 +41,5 @@ Onderstaand vind je de eisen die verwerkt moeten worden bij het uitwerken van he
 | Landing Page | User can see the leaderboard and play game with randoms or choose a friend to invite | 
 | Friends Page | User can manage friends and manage friend invites in and outgoing                    |
 | Login Page   | User can login with Google                                                           |
+| Que page     | Wait for an random opponent or friend to join the game or cancel the que             |
+| Game Page    | Play a game of tic tac toe with a random player or friend                            |
