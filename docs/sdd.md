@@ -65,5 +65,11 @@ erDiagram
 #### Client to Server
 
 - `game-move`: When a user makes a move in the game
-- `game-finished`: When a user finishes the game
+
+#### Server to Client
+
+- `game-move-opponent`: When the opponent makes a move in the game
+- `game-finished`: When the game is finished
+- `opponent-disconnected`: When the opponent disconnects
+
 
