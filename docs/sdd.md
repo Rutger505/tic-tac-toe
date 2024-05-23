@@ -5,31 +5,32 @@
 ```mermaid
 erDiagram
     User {
-        string id
+        string id PK
         string username
+        datetime created_at
     }
 
     Game {
-        string id
-        string player1_id FK
-        string player2_id FK
+        string id PK
+        string player1_user_id FK
+        string player2_user_id FK
         string state "(PLAYING, FINISHED, CANCELLED)"
         string winner_user_id FK "(NULL if not finished, TIE if tie)"
         datetime played_at
     }
 
     GameInvitation {
-        string id
-        string sender_id FK
-        string receiver_id FK
+        string id PK
+        string sender_user_id FK
+        string receiver_user_id FK
         string state "(PENDING, ACCEPTED, DECLINED)"
         datetime sent_at
     }
 
     FriendInvitation {
-        string id
-        string sender_id FK
-        string receiver_id FK
+        string id PK
+        string sender_user_id FK
+        string receiver_user_id FK
         string state "(PENDING, ACCEPTED, DECLINED)"
         datetime sent_at
     }
