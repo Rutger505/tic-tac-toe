@@ -54,9 +54,16 @@ erDiagram
 
 ## Socket.io Events
 
-### Client to Server
+### Home Page
 
-- `joinQueue`: Join the queue for a game
+#### Server to Client
 
-### Server to Client
+- `game-invitation-received`: When a user receives a game invitation
+
+### Game Page
+
+#### Client to Server
+
+- `game-move`: When a user makes a move in the game
+- `game-finished`: When a user finishes the game
 
