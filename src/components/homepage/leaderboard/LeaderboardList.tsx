@@ -11,17 +11,20 @@ interface LeaderboardUser {
   name: string;
   wins: number;
   winPercentage: number;
+  position: number;
 }
 
 interface LeaderboardListProps {
   users: LeaderboardUser[];
+  currentUser: LeaderboardUser;
 }
 
 export default function LeaderboardList({
   users,
+  currentUser,
 }: Readonly<LeaderboardListProps>) {
   return (
-    <Table className={"w-fit"}>
+    <Table className={"w-fit overflow-hidden"}>
       <TableHeader>
         <TableRow>
           <TableCell></TableCell>
@@ -31,14 +34,20 @@ export default function LeaderboardList({
         </TableRow>
       </TableHeader>
       <TableBody>
-        {users.map((user, index) => (
+        {users.map((user) => (
           <TableRow key={user.id}>
-            <TableCell>{index + 1}</TableCell>
+            <TableCell>{user.position}</TableCell>
             <TableCell>{user.name}</TableCell>
             <TableCell>{user.wins}</TableCell>
             <TableCell>{user.winPercentage}</TableCell>
           </TableRow>
         ))}
+        <TableRow>
+          <TableCell>{currentUser.position}</TableCell>
+          <TableCell>{currentUser.name}</TableCell>
+          <TableCell>{currentUser.wins}</TableCell>
+          <TableCell>{currentUser.winPercentage}</TableCell>
+        </TableRow>
       </TableBody>
     </Table>
   );
