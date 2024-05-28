@@ -3,9 +3,9 @@ import Leaderboard from "@/components/homepage/leaderboard";
 
 export default function Home() {
   return (
-    <main className="flex p-56">
-      <div className={"flex flex-col gap-28 justify-center -mt-36"}>
-        <h1 className={"font-bold text-7xl"}>Tic-tac-toe</h1>
+    <main className="grid grid-cols-2">
+      <div className={"flex flex-col gap-28 mt-48 mx-auto"}>
+        <h1 className={"font-bold text-6xl"}>Tic-tac-toe</h1>
         <div className={"flex gap-8"}>
           <Button className={"rounded-md px-4 h-14 text-2xl font-medium"}>
             Quick play
