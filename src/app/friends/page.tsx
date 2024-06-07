@@ -1,6 +1,7 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CurrentFriends } from "@/components/friends/CurrentFriends";
 import { AddFriends } from "@/components/friends/AddFriends";
+import FriendInvitations from "@/components/friends/FriendInvitations";
 
 export default function Friends() {
   return (
@@ -25,12 +26,23 @@ export default function Friends() {
           >
             Add friends
           </TabsTrigger>
+          <TabsTrigger
+            value="friend-invitations"
+            className={
+              "data-[state=active]:bg-muted rounded-sm data-[state=active]:border-0"
+            }
+          >
+            Friend invitations
+          </TabsTrigger>
         </TabsList>
         <TabsContent value={"friends"} className={"mt-4"}>
           <CurrentFriends />
         </TabsContent>
         <TabsContent value={"add-friends"} className={"mt-4"}>
           <AddFriends />
+        </TabsContent>
+        <TabsContent value={"friend-invitations"} className={"mt-4"}>
+          <FriendInvitations />
         </TabsContent>
       </Tabs>
     </main>

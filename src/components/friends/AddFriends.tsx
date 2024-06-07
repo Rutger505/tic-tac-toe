@@ -34,7 +34,7 @@ export function AddFriends() {
             {Math.random() > 0.5 ? (
               <TimerIcon className={"h-5"} />
             ) : (
-              <PlusIcon className={"h-5 ml-1"} />
+              <PlusIcon className={"h-4 ml-1"} />
             )}
           </button>
         )}
