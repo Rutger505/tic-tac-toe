@@ -14,7 +14,7 @@ export default function Header() {
       </Link>
 
       <div className={"flex gap-12"}>
-        <Link href={"friends"} className={"font-medium text-xl"}>
+        <Link href={"/friends"} className={"font-medium text-xl"}>
           Friends
         </Link>
         <button className={"font-medium text-xl"}>Logout</button>
