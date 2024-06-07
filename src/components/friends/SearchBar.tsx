@@ -1,3 +1,5 @@
+import { SearchIcon } from "@/components/icons/SearchIcon";
+
 interface SearchBarProps {
   value: string;
   onChange: (value: string) => void;
@@ -8,12 +10,15 @@ export default function SearchBar({
   onChange,
 }: Readonly<SearchBarProps>) {
   return (
-    <input
-      type="text"
-      placeholder="Search"
-      className="w-full p-2 border border-gray-300 rounded-full"
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-    />
+    <div className="flex items-center w-full border border-gray-300 rounded-full box-border">
+      <SearchIcon className={" pl-4 h-4 "} />
+      <input
+        className={"p-2 px-4 outline-0 flex-grow bg-transparent"}
+        type="text"
+        placeholder="Search"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+      />
+    </div>
   );
 }

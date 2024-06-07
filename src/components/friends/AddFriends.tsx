@@ -20,15 +20,17 @@ export function AddFriends() {
       email: "asfsadf@asd.com",
     },
   ];
+
   return (
     <>
       <SearchBar value={search} onChange={setSearch} />
       <UserList
-        users={users}
+        users={users.filter((user) =>
+          user.name.toLowerCase().includes(search.toLowerCase()),
+        )}
         actionCell={(user) => (
           <button>
             <TrashIcon className={"h-4 -mb-1"} />
-            {search}
           </button>
         )}
       />
