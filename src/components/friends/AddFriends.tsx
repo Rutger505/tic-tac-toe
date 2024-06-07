@@ -1,9 +1,10 @@
 "use client";
 
 import UserList from "@/components/friends/UserList";
-import { TrashIcon } from "@/components/icons/TrashIcon";
 import { useState } from "react";
 import SearchBar from "@/components/friends/SearchBar";
+import { PlusIcon } from "@/components/icons/PlusIcon";
+import { TimerIcon } from "@/components/icons/TimerIcon";
 
 export function AddFriends() {
   const [search, setSearch] = useState("");
@@ -29,8 +30,12 @@ export function AddFriends() {
           user.name.toLowerCase().includes(search.toLowerCase()),
         )}
         actionCell={(user) => (
-          <button>
-            <TrashIcon className={"h-4 -mb-1"} />
+          <button className={"flex items-center justify-center"}>
+            {Math.random() > 0.5 ? (
+              <TimerIcon className={"h-5"} />
+            ) : (
+              <PlusIcon className={"h-5 ml-1"} />
+            )}
           </button>
         )}
       />
