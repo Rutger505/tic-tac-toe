@@ -1,7 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
+import { auth, signIn, signOut } from "@/auth";
 
-export default function Header() {
+export default async function Header() {
+  const session = await auth();
+
   return (
     <header className="flex items-center justify-between h-24 px-12">
       <Link href={"/"}>
@@ -14,11 +17,30 @@ export default function Header() {
       </Link>
 
       <div className={"flex gap-12"}>
-        <Link href={"/friends"} className={"font-medium text-xl"}>
-          Friends
-        </Link>
-        <button className={"font-medium text-xl"}>Logout</button>
-        <button className={"font-medium text-xl"}>Login</button>
+        {session ? (
+          <>
+            <Link href={"/friends"} className={"font-medium text-xl"}>
+              Friends
+            </Link>
+            <form
+              action={async () => {
+                "use server";
+                await signOut();
+              }}
+            >
+              <button className={"font-medium text-xl"}>Logout</button>
+            </form>
+          </>
+        ) : (
+          <form
+            action={async () => {
+              "use server";
+              await signIn();
+            }}
+          >
+            <button className={"font-medium text-xl"}>Login</button>
+          </form>
+        )}
       </div>
     </header>
   );
