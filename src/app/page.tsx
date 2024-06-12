@@ -1,7 +1,10 @@
 import { Button } from "@/components/ui/button";
 import Leaderboard from "@/components/homepage/leaderboard";
+import {auth} from "@/auth";
 
-export default function Home() {
+export default async function Home() {
+  const session = await auth();
+
   return (
     <main className="grid grid-cols-2">
       <div className={"flex flex-col gap-28 mt-48 mx-auto"}>
@@ -17,6 +20,7 @@ export default function Home() {
             Play with friend
           </Button>
         </div>
+        {JSON.stringify(session)}
       </div>
       <Leaderboard />
     </main>
