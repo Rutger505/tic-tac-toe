@@ -13,7 +13,7 @@ model User {
   email         String?      @unique
   emailVerified DateTime?
   image         String?
-  role          String?
+  role          String      @default("user")
   accounts      Account[]
   sessions      Session[]
   friends       Friendship[] @relation("Friend")
@@ -66,7 +66,7 @@ model VerificationToken {
 
 model Friendship {
   id        String   @id @default(cuid())
-  status    String   @default("PENDING")
+  status    String   @default("pending")
   user1Id   String
   user2Id   String
   createdAt DateTime @default(now())
