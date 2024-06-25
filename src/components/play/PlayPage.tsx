@@ -28,6 +28,18 @@ export default function PlayPage({ loggedInUser }: Readonly<PlayPageProps>) {
   const [status, setStatus] = useState("Searching for opponent...");
 
   useEffect(() => {
+    if (opponent === null) {
+      return;
+    }
+    const opponentSymbol = playerSymbol === "X" ? "O" : "X";
+    setStatus(
+      isPlayerTurn
+        ? `Your (${playerSymbol}) turn`
+        : `${opponent.name}'s (${opponentSymbol}) turn`,
+    );
+  }, [isPlayerTurn, opponent]);
+
+  useEffect(() => {
     const socket = io(process.env.NEXT_PUBLIC_WEBSOCKET_URL as string);
 
     setSocket(socket);
@@ -36,7 +48,6 @@ export default function PlayPage({ loggedInUser }: Readonly<PlayPageProps>) {
       setOpponent(data.opponent);
       setPlayerSymbol(data.symbol);
       setIsPlayerTurn(data.symbol === "X");
-      setStatus(`You are ${data.symbol}`);
     });
 
     socket.on("opponent-move", (data: MoveData) => {

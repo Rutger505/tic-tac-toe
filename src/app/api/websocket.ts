@@ -90,9 +90,8 @@ function createEvents(
   symbol: string,
 ) {
   player.socket.emit("match", {
-    opponent,
+    opponent: opponent.user,
     symbol,
-    gameId,
   });
 
   player.socket.on("make-move", async (data) => {
@@ -112,7 +111,7 @@ function createEvents(
       where: { id: gameId },
       data: {
         winnerId: player.user.id,
-        result: `player ${player.user.name} (${symbol}) wins by disconnect`,
+        result: `${player.user.name} (${symbol}) wins by opponent disconnect`,
       },
     });
     player.socket.emit("opponent-disconnected");
