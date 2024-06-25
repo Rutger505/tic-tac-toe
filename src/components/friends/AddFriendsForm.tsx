@@ -24,36 +24,27 @@ export default function AddFriendsForm({
 }: Readonly<CurrentFriendsFormProps>) {
   const [search, setSearch] = useState("");
 
+  const getFriendshipIcon = (user: User) => {
+    const friendship = friendShips.find(
+      (friendShip) =>
+        friendShip.user1Id === user.id || friendShip.user2Id === user.id,
+    );
+
+    if (!friendship) {
+      return <PlusIcon className={"h-4 ml-1"} />;
+    }
+
+    if (friendship.status === "pending") {
+      return <TimerIcon className={"h-4 ml-1"} />;
+    }
+
+    return <CheckIcon className={"h-4 ml-1"} />;
+  };
+
   return (
     <>
       <SearchBar value={search} onChange={setSearch} />
-      <UserList
-        users={users}
-        actionCell={(user) =>
-          // If user is already friend show CheckIcon
-          // else if user is friend request pending show TimerIcon
-          // else if user is not friend show PlusIcon
-          friendShips.some((friendShip) => {
-            return (
-              (friendShip.user1Id === user.id ||
-                friendShip.user2Id === user.id) &&
-              friendShip.status === "accepted"
-            );
-          }) ? (
-            <CheckIcon className={"h-4 ml-1"} />
-          ) : friendShips.some((friendShip) => {
-              return (
-                (friendShip.user1Id === user.id ||
-                  friendShip.user2Id === user.id) &&
-                friendShip.status === "pending"
-              );
-            }) ? (
-            <TimerIcon className={"h-5"} />
-          ) : (
-            <PlusIcon className={"h-4 ml-1"} />
-          )
-        }
-      />
+      <UserList users={users} actionCell={(user) => getFriendshipIcon(user)} />
     </>
   );
 }
