@@ -1,7 +1,7 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CurrentFriends } from "@/components/friends/CurrentFriends";
-import { AddFriends } from "@/components/friends/AddFriends";
 import FriendInvitations from "@/components/friends/FriendInvitations";
+import AddFriends from "@/components/friends/AddFriends";
+import CurrentFriends from "@/components/friends/CurrentFriends";
 
 export default function Friends() {
   return (

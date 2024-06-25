@@ -1,29 +1,36 @@
-"use client";
+import { redirect } from "next/navigation";
+import db from "@/lib/db";
+import { auth } from "@/auth";
+import CurrentFriendsForm from "@/components/friends/CurrentFriendsForm";
 
-import UserList from "@/components/friends/UserList";
-import { TrashIcon } from "@/components/icons/TrashIcon";
+export default async function CurrentFriends() {
+  const session = await auth();
+  if (!session) {
+    return redirect("/");
+  }
 
-export function CurrentFriends() {
-  const users = [
-    {
-      id: "idesd",
-      name: "RutgerDeN00b",
-      email: "jogn@email.com",
+  const friendships = await db.friendship.findMany({
+    where: {
+      status: "accepted",
+      OR: [
+        { user1Id: session.session.user.id },
+        { user2Id: session.session.user.id },
+      ],
     },
-    {
-      id: "idasdflkjasdf;lkasdfesd",
-      name: "John Doe",
-      email: "asfsadf@asd.com",
+    include: {
+      user1: true,
+      user2: true,
     },
-  ];
-  return (
-    <UserList
-      users={users}
-      actionCell={(user) => (
-        <button>
-          <TrashIcon className={"h-4 -mb-1"} />
-        </button>
-      )}
-    />
-  );
+  });
+
+  const friends = friendships
+    .map((friendship) => {
+      if (friendship.user1Id === session.session.user.id) {
+        return friendship.user2;
+      }
+      return friendship.user1;
+    })
+    .filter((user): user is User => user.name != null && user.email != null);
+
+  return <CurrentFriendsForm users={friends} />;
 }

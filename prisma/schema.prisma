@@ -8,14 +8,16 @@ generator client {
 }
 
 model User {
-  id            String    @id @default(cuid())
+  id            String       @id @default(cuid())
   name          String?
-  email         String?   @unique
+  email         String?      @unique
   emailVerified DateTime?
   image         String?
-  role          String?
+  role          String      @default("user")
   accounts      Account[]
   sessions      Session[]
+  friends       Friendship[] @relation("Friend")
+  friendsOf     Friendship[] @relation("FriendOf")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -60,4 +62,17 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+model Friendship {
+  id        String   @id @default(cuid())
+  status    String   @default("pending")
+  user1Id   String
+  user2Id   String
+  createdAt DateTime @default(now())
+
+  user1 User @relation("Friend", fields: [user1Id], references: [id], onDelete: Cascade)
+  user2 User @relation("FriendOf", fields: [user2Id], references: [id], onDelete: Cascade)
+
+  @@unique([user1Id, user2Id])
 }
