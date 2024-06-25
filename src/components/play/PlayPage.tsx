@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
+import { User } from "@/lib/types";
 
 type PlayerSymbol = "X" | "O" | null;
 
@@ -66,6 +67,15 @@ export default function PlayPage({ loggedInUser }: Readonly<PlayPageProps>) {
       setPlayerSymbol(null);
       setOpponent(null);
       socket.emit("join-queue", { userId: loggedInUser.id });
+    });
+
+    socket.on("game-over", (data) => {
+      setStatus(
+        data.result === "draw" ? "It's a draw!" : `Game Over! ${data.result}`,
+      );
+      setIsPlayerTurn(false);
+      setPlayerSymbol(null);
+      setOpponent(null);
     });
 
     socket.emit("join-queue", { userId: loggedInUser.id });

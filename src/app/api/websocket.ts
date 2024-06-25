@@ -2,6 +2,7 @@ import express from "express";
 import * as http from "http";
 import { Server, Socket } from "socket.io";
 import db from "@/lib/db";
+import { User } from "@/lib/types";
 
 const app = express();
 const server = http.createServer(app);
@@ -104,6 +105,23 @@ function createEvents(
       },
     });
     opponent.socket.emit("opponent-move", data);
+
+    const board = await getBoardPositions(gameId);
+    const result = checkGameState(board, data.symbol);
+
+    if (!result) {
+      // Game is still ongoing
+      return;
+    }
+
+    await db.game.update({
+      where: { id: gameId },
+      data: {
+        result: result === "draw" ? "draw" : `${player.user.id} wins`,
+      },
+    });
+    player.socket.emit("game-over", { result });
+    opponent.socket.emit("game-over", { result });
   });
 
   opponent.socket.on("disconnect", async () => {
@@ -111,11 +129,49 @@ function createEvents(
       where: { id: gameId },
       data: {
         winnerId: player.user.id,
-        result: `${player.user.name} (${symbol}) wins by opponent disconnect`,
+        result: `player ${player.user.name} (${symbol}) wins by disconnect`,
       },
     });
     player.socket.emit("opponent-disconnected");
   });
+}
+
+async function getBoardPositions(gameId: string): Promise<(string | null)[]> {
+  const moves = await db.move.findMany({
+    where: { gameId },
+  });
+
+  const board = Array(9).fill(null);
+  moves.forEach((move) => {
+    board[move.position] = move.symbol;
+  });
+
+  return board;
+}
+
+function checkGameState(board: (string | null)[], symbol: string) {
+  const winPatterns = [
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8],
+    [2, 4, 6],
+  ];
+
+  for (const pattern of winPatterns) {
+    if (pattern.every((index) => board[index] === symbol)) {
+      return symbol;
+    }
+  }
+
+  if (board.every((cell) => cell !== null)) {
+    return "draw";
+  }
+
+  return null;
 }
 
 const port = process.env.WEBSOCKET_PORT
