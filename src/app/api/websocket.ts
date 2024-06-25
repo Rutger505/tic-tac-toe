@@ -1,6 +1,8 @@
 import express from "express";
 import * as http from "http";
 import { Server, Socket } from "socket.io";
+import db from "@/lib/db";
+import { User } from "lucide-react";
 
 const app = express();
 const server = http.createServer(app);
@@ -16,8 +18,8 @@ const io = new Server(server, {
 });
 
 interface Player {
-  id: string;
   socket: Socket;
+  user: User;
 }
 
 const queue: Player[] = [];
@@ -25,64 +27,71 @@ const queue: Player[] = [];
 io.on("connection", (socket: Socket) => {
   console.log("a user connected:", socket.id);
 
-  socket.on("join-queue", () => {
-    console.log("Player joined queue:", socket.id);
-    queue.push({ id: socket.id, socket });
+  socket.on("join-queue", async ({ userId }) => {
+    const user = (await db.user.findUnique({
+      where: {
+        id: userId,
+      },
+    })) as User | null;
+
+    if (!user) {
+      socket.disconnect();
+      return;
+    }
+
+    queue.push({ socket, user });
+    console.log("Player joined queue:", user.name);
 
     // Try to match players if there are at least two in the queue
     if (queue.length >= 2) {
-      const player1 = queue.shift();
-      const player2 = queue.shift();
-
-      if (!player1 || !player2) {
-        if (player1) {
-          queue.unshift(player1);
-        }
-        if (player2) {
-          queue.unshift(player2);
-        }
-        return;
-      }
-
-      console.log("Matched players:", player1.id, player2.id);
-      player1.socket.emit("match", { opponentId: player2.id, symbol: "X" });
-      player2.socket.emit("match", { opponentId: player1.id, symbol: "O" });
-
-      startGame(player1.socket, player2.socket);
+      matchPlayers();
     }
   });
 
   socket.on("disconnect", () => {
     console.log("user disconnected:", socket.id);
-    // Remove the player from the queue if they disconnect
-    const index = queue.findIndex((player) => player.id === socket.id);
+    const index = queue.findIndex((player) => player.socket.id === socket.id);
     if (index !== -1) {
       queue.splice(index, 1);
     }
   });
 });
 
+function matchPlayers() {
+  const player1 = queue.shift();
+  const player2 = queue.shift();
+
+  if (!player1 || !player2) {
+    if (player1) {
+      queue.unshift(player1);
+    }
+    if (player2) {
+      queue.unshift(player2);
+    }
+    return;
+  }
+
+  console.log(`Matched players: ${player1.user.name}, ${player2.user.name}`);
+  player1.socket.emit("match", { opponent: player2.user, symbol: "X" });
+  player2.socket.emit("match", { opponent: player1.user, symbol: "O" });
+
+  startGame(player1.socket, player2.socket);
+}
+
 function startGame(socket1: Socket, socket2: Socket) {
   socket1.on("make-move", (data) => {
     socket2.emit("opponent-move", data);
   });
-
   socket2.on("make-move", (data) => {
     socket1.emit("opponent-move", data);
   });
 
-  // Handle disconnection during the game
-  const handleDisconnect = (
-    disconnectedSocket: Socket,
-    remainingSocket: Socket,
-  ) => {
-    disconnectedSocket.on("disconnect", () => {
-      remainingSocket.emit("opponent-disconnected");
-    });
-  };
-
-  handleDisconnect(socket1, socket2);
-  handleDisconnect(socket2, socket1);
+  socket1.on("disconnect", () => {
+    socket2.emit("opponent-disconnected");
+  });
+  socket2.on("disconnect", () => {
+    socket1.emit("opponent-disconnected");
+  });
 }
 
 const port = process.env.WEBSOCKET_PORT

@@ -9,5 +9,5 @@ export default async function QueuePage() {
     return redirect("/");
   }
 
-  return <PlayPage />;
+  return <PlayPage loggedInUser={session.session.user} />;
 }

@@ -6,7 +6,7 @@ import { io, Socket } from "socket.io-client";
 type PlayerSymbol = "X" | "O" | null;
 
 interface MatchData {
-  opponentId: string;
+  opponent: User;
   symbol: PlayerSymbol;
 }
 
@@ -15,12 +15,16 @@ interface MoveData {
   symbol: PlayerSymbol;
 }
 
-export default function PlayPage() {
+interface PlayPageProps {
+  loggedInUser: User;
+}
+
+export default function PlayPage({ loggedInUser }: Readonly<PlayPageProps>) {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [board, setBoard] = useState<PlayerSymbol[]>(Array(9).fill(null));
   const [isPlayerTurn, setIsPlayerTurn] = useState(false);
   const [playerSymbol, setPlayerSymbol] = useState<PlayerSymbol>(null);
-  const [opponentId, setOpponentId] = useState<string | null>(null);
+  const [opponent, setOpponent] = useState<User | null>(null);
   const [status, setStatus] = useState("Searching for opponent...");
 
   useEffect(() => {
@@ -28,13 +32,13 @@ export default function PlayPage() {
 
     setSocket(socket);
 
-    socket.emit("join-queue");
-
     socket.on("match", (data: MatchData) => {
-      setOpponentId(data.opponentId);
+      console.log("Matched with opponent:", data);
+
+      setOpponent(data.opponent);
       setPlayerSymbol(data.symbol);
       setIsPlayerTurn(data.symbol === "X");
-      setStatus(`Matched! You are ${data.symbol}`);
+      setStatus(`You are ${data.symbol}`);
     });
 
     socket.on("opponent-move", (data: MoveData) => {
@@ -51,8 +55,11 @@ export default function PlayPage() {
       setBoard(Array(9).fill(null));
       setIsPlayerTurn(false);
       setPlayerSymbol(null);
-      setOpponentId(null);
+      setOpponent(null);
+      socket.emit("join-queue", { userId: loggedInUser.id });
     });
+
+    socket.emit("join-queue", { userId: loggedInUser.id });
 
     return () => {
       socket.disconnect();
@@ -77,35 +84,34 @@ export default function PlayPage() {
   };
 
   return (
-    <main className="mx-auto">
-      <div className="space-y-10">
-        <h1 className="font-bold text-3xl text-center">{status}</h1>
-        <div className="relative grid grid-cols-3 grid-rows-3 h-96 w-96">
-          {Array.from({ length: 9 }).map((_, index) => (
-            <button
-              key={index}
-              className="w-full h-full flex items-center justify-center text-3xl"
-              onClick={() => handleCellClick(index)}
-            >
-              {board[index]}
-            </button>
-          ))}
+    <main className="flex flex-col items-center gap-10">
+      <h1 className="font-bold text-3xl text-center max-w-xl">{status}</h1>
+      <div className="relative grid grid-cols-3 grid-rows-3 h-96 w-96">
+        {Array.from({ length: 9 }).map((_, index) => (
+          <button
+            key={index}
+            className="w-full h-full flex items-center justify-center text-3xl"
+            onClick={() => handleCellClick(index)}
+          >
+            {board[index]}
+          </button>
+        ))}
 
-          {/* Rounded lines */}
-          <div className="absolute inset-0 flex flex-col justify-evenly -z-10">
-            <div className="w-full h-[6px] bg-black rounded-full"></div>
-            <div className="w-full h-[6px] bg-black rounded-full"></div>
-          </div>
-          <div className="absolute inset-0 flex justify-evenly -z-10">
-            <div className="w-[6px] h-full bg-black rounded-full"></div>
-            <div className="w-[6px] h-full bg-black rounded-full"></div>
-          </div>
+        {/* Rounded lines */}
+        <div className="absolute inset-0 flex flex-col justify-evenly -z-10">
+          <div className="w-full h-[6px] bg-black rounded-full"></div>
+          <div className="w-full h-[6px] bg-black rounded-full"></div>
         </div>
-
-        <p className="text-center text-lg font-medium">
-          Opponent: {opponentId ? "Playing..." : "Searching..."}
-        </p>
+        <div className="absolute inset-0 flex justify-evenly -z-10">
+          <div className="w-[6px] h-full bg-black rounded-full"></div>
+          <div className="w-[6px] h-full bg-black rounded-full"></div>
+        </div>
       </div>
+      {opponent && (
+        <p className="text-center text-lg font-medium">
+          Opponent: {opponent.name}
+        </p>
+      )}
     </main>
   );
 }
