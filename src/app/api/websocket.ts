@@ -34,27 +34,21 @@ io.on("connection", (socket: Socket) => {
       const player1 = queue.shift();
       const player2 = queue.shift();
 
-      if (player1 && player2) {
-        // Check if both players are still connected
-        if (
-          io.sockets.sockets.get(player1.id) &&
-          io.sockets.sockets.get(player2.id)
-        ) {
-          console.log("Matched players:", player1.id, player2.id);
-          player1.socket.emit("match", { opponentId: player2.id, symbol: "X" });
-          player2.socket.emit("match", { opponentId: player1.id, symbol: "O" });
-
-          startGame(player1.socket, player2.socket);
-        } else {
-          // Push back the connected player to the queue
-          if (io.sockets.sockets.get(player1.id)) {
-            queue.unshift(player1);
-          }
-          if (io.sockets.sockets.get(player2.id)) {
-            queue.unshift(player2);
-          }
+      if (!player1 || !player2) {
+        if (player1) {
+          queue.unshift(player1);
         }
+        if (player2) {
+          queue.unshift(player2);
+        }
+        return;
       }
+
+      console.log("Matched players:", player1.id, player2.id);
+      player1.socket.emit("match", { opponentId: player2.id, symbol: "X" });
+      player2.socket.emit("match", { opponentId: player1.id, symbol: "O" });
+
+      startGame(player1.socket, player2.socket);
     }
   });
 
