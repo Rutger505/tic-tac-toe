@@ -1,5 +1,6 @@
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { ReactNode } from "react";
+import Image from "next/image";
 
 interface UserListProps {
   users: User[];
@@ -11,10 +12,19 @@ export default function UserList({
   actionCell,
 }: Readonly<UserListProps>) {
   return (
-    <Table className={"w-fit"}>
+    <Table>
       <TableBody>
         {users.map((user) => (
           <TableRow key={user.id}>
+            <TableCell>
+              <Image
+                src={user.image ?? "/avatar-placeholder.svg"}
+                alt={user.name}
+                width={32}
+                height={32}
+                className={"rounded-full"}
+              />
+            </TableCell>
             <TableCell className={"font-medium min-w-72"}>
               {user.name}
             </TableCell>

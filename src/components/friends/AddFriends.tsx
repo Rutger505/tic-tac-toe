@@ -1,44 +1,35 @@
-"use client";
+import { auth } from "@/auth";
+import { redirect } from "next/navigation";
+import db from "@/lib/db";
+import AddFriendsForm from "@/components/friends/AddFriendsForm";
 
-import UserList from "@/components/friends/UserList";
-import { useState } from "react";
-import SearchBar from "@/components/friends/SearchBar";
-import { PlusIcon } from "@/components/icons/PlusIcon";
-import { TimerIcon } from "@/components/icons/TimerIcon";
+export default async function AddFriends() {
+  const session = await auth();
 
-export function AddFriends() {
-  const [search, setSearch] = useState("");
+  if (!session) {
+    return redirect("/");
+  }
 
-  const users = [
-    {
-      id: "idesd",
-      name: "RutgerDeN00b",
-      email: "jogn@email.com",
+  const users = (
+    await db.user.findMany({
+      where: {
+        id: {
+          not: session.session.user.id,
+        },
+      },
+    })
+  ).filter((user): user is User => {
+    return user.name != null && user.email != null;
+  });
+
+  const friendships = await db.friendship.findMany({
+    where: {
+      OR: [
+        { user1Id: session.session.user.id },
+        { user2Id: session.session.user.id },
+      ],
     },
-    {
-      id: "idasdflkjasdf;lkasdfesd",
-      name: "John Doe",
-      email: "asfsadf@asd.com",
-    },
-  ];
+  });
 
-  return (
-    <>
-      <SearchBar value={search} onChange={setSearch} />
-      <UserList
-        users={users.filter((user) =>
-          user.name.toLowerCase().includes(search.toLowerCase()),
-        )}
-        actionCell={(user) => (
-          <button className={"flex items-center justify-center"}>
-            {Math.random() > 0.5 ? (
-              <TimerIcon className={"h-5"} />
-            ) : (
-              <PlusIcon className={"h-4 ml-1"} />
-            )}
-          </button>
-        )}
-      />
-    </>
-  );
+  return <AddFriendsForm users={users} friendShips={friendships} />;
 }
