@@ -7,8 +7,6 @@ const server = http.createServer(app);
 
 const cors = process.env.NEXT_PUBLIC_BASE_URL;
 
-console.log("Cors", cors);
-
 const io = new Server(server, {
   cors: {
     origin: cors,
@@ -24,32 +22,39 @@ const queue: Player[] = [];
 
 io.on("connection", (socket: Socket) => {
   console.log("a user connected:", socket.id);
-  queue.push({ id: socket.id, socket });
-  console.log("queue length:", queue.length);
-  // Add player to the queue
 
-  // Try to match players if there are at least two in the queue
-  if (queue.length >= 2) {
-    console.log("Matched players");
-    const player1 = queue.shift();
-    const player2 = queue.shift();
+  socket.on("join-queue", () => {
+    console.log("Player joined queue:", socket.id);
+    queue.push({ id: socket.id, socket });
 
-    if (!player1 || !player2) {
-      if (player1) {
-        queue.push(player1);
+    // Try to match players if there are at least two in the queue
+    if (queue.length >= 2) {
+      const player1 = queue.shift();
+      const player2 = queue.shift();
+
+      if (player1 && player2) {
+        // Check if both players are still connected
+        if (
+          io.sockets.sockets.get(player1.id) &&
+          io.sockets.sockets.get(player2.id)
+        ) {
+          console.log("Matched players:", player1.id, player2.id);
+          player1.socket.emit("match", { opponentId: player2.id, symbol: "X" });
+          player2.socket.emit("match", { opponentId: player1.id, symbol: "O" });
+
+          startGame(player1.socket, player2.socket);
+        } else {
+          // Push back the connected player to the queue
+          if (io.sockets.sockets.get(player1.id)) {
+            queue.unshift(player1);
+          }
+          if (io.sockets.sockets.get(player2.id)) {
+            queue.unshift(player2);
+          }
+        }
       }
-      if (player2) {
-        queue.push(player2);
-      }
-      return;
     }
-
-    // Notify both players they are matched and start the game
-    player1.socket.emit("match", { opponentId: player2.id, symbol: "X" });
-    player2.socket.emit("match", { opponentId: player1.id, symbol: "O" });
-
-    startGame(player1.socket, player2.socket);
-  }
+  });
 
   socket.on("disconnect", () => {
     console.log("user disconnected:", socket.id);
