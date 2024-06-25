@@ -7,6 +7,8 @@ const server = http.createServer(app);
 
 const cors = process.env.NEXT_PUBLIC_BASE_URL;
 
+console.log("CORS:", cors);
+
 const io = new Server(server, {
   cors: {
     origin: cors,
@@ -93,5 +95,5 @@ const port = process.env.WEBSOCKET_PORT
   ? parseInt(process.env.WEBSOCKET_PORT)
   : 3001;
 server.listen(port, () => {
-  console.log(`✔️ Server listening on port ${port}`);
+  console.log(`Server listening on port ${port}`);
 });
