@@ -1,8 +1,6 @@
-import { RotatingIcon } from "@/components/play/RotatingIcon";
-import { CancelButton } from "@/components/play/CancelButton";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { Queue } from "@/components/play/Queue";
+import PlayPage from "@/components/play/PlayPage";
 
 export default async function QueuePage() {
   const session = await auth();
@@ -11,14 +9,5 @@ export default async function QueuePage() {
     return redirect("/");
   }
 
-  console.log("joined queue");
-
-  return (
-    <main className="flex flex-col items-center justify-center gap-10">
-      <h1 className="text-4xl font-bold">Waiting for opponent</h1>
-      <RotatingIcon />
-      <CancelButton />
-      <Queue />
-    </main>
-  );
+  return <PlayPage />;
 }

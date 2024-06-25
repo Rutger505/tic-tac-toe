@@ -1,6 +1,6 @@
 import express from "express";
 import * as http from "http";
-import { Server } from "socket.io";
+import { Server, Socket } from "socket.io";
 
 const app = express();
 const server = http.createServer(app);
@@ -15,23 +15,74 @@ const io = new Server(server, {
   },
 });
 
-let queueSize = 0;
+interface Player {
+  id: string;
+  socket: Socket;
+}
 
-io.on("connection", (socket) => {
-  console.log("a user connected");
+const queue: Player[] = [];
 
-  socket.on("join-queue", () => {
-    console.log("user joined queue");
-    queueSize++;
-    console.log("queue size", queueSize);
-  });
+io.on("connection", (socket: Socket) => {
+  console.log("a user connected:", socket.id);
+  queue.push({ id: socket.id, socket });
+  console.log("queue length:", queue.length);
+  // Add player to the queue
+
+  // Try to match players if there are at least two in the queue
+  if (queue.length >= 2) {
+    console.log("Matched players");
+    const player1 = queue.shift();
+    const player2 = queue.shift();
+
+    if (!player1 || !player2) {
+      if (player1) {
+        queue.push(player1);
+      }
+      if (player2) {
+        queue.push(player2);
+      }
+      return;
+    }
+
+    // Notify both players they are matched and start the game
+    player1.socket.emit("match", { opponentId: player2.id, symbol: "X" });
+    player2.socket.emit("match", { opponentId: player1.id, symbol: "O" });
+
+    startGame(player1.socket, player2.socket);
+  }
 
   socket.on("disconnect", () => {
-    console.log("user disconnected");
-    queueSize--;
-    console.log("queue size", queueSize);
+    console.log("user disconnected:", socket.id);
+    // Remove the player from the queue if they disconnect
+    const index = queue.findIndex((player) => player.id === socket.id);
+    if (index !== -1) {
+      queue.splice(index, 1);
+    }
   });
 });
+
+function startGame(socket1: Socket, socket2: Socket) {
+  socket1.on("make-move", (data) => {
+    socket2.emit("opponent-move", data);
+  });
+
+  socket2.on("make-move", (data) => {
+    socket1.emit("opponent-move", data);
+  });
+
+  // Handle disconnection during the game
+  const handleDisconnect = (
+    disconnectedSocket: Socket,
+    remainingSocket: Socket,
+  ) => {
+    disconnectedSocket.on("disconnect", () => {
+      remainingSocket.emit("opponent-disconnected");
+    });
+  };
+
+  handleDisconnect(socket1, socket2);
+  handleDisconnect(socket2, socket1);
+}
 
 const port = process.env.WEBSOCKET_PORT
   ? parseInt(process.env.WEBSOCKET_PORT)
