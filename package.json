@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "dev": "concurrently --kill-others --names \"next,websocket\" --prefix-colors \"cyan,green\"  \"npm run next-dev\" \"npm run ws-dev\"",
-    "next-dev": "next dev --turbo",
+    "next-dev": "next dev",
     "ws-dev": "bun --watch src/app/api/websocket.ts",
     "production": "concurrently --kill-others --names \"next,websocket\" --prefix-colors \"cyan,green\"  \"npm run next-prod\" \"npm run ws-prod\"",
     "next-prod": "next build && next start",
