@@ -33,8 +33,6 @@ export default function PlayPage({ loggedInUser }: Readonly<PlayPageProps>) {
     setSocket(socket);
 
     socket.on("match", (data: MatchData) => {
-      console.log("Matched with opponent:", data);
-
       setOpponent(data.opponent);
       setPlayerSymbol(data.symbol);
       setIsPlayerTurn(data.symbol === "X");
@@ -67,7 +65,12 @@ export default function PlayPage({ loggedInUser }: Readonly<PlayPageProps>) {
   }, []);
 
   const handleCellClick = (index: number) => {
-    if (!isPlayerTurn || board[index] !== null || playerSymbol === null) {
+    if (
+      !isPlayerTurn ||
+      board[index] !== null ||
+      playerSymbol === null ||
+      opponent === null
+    ) {
       return;
     }
     if (!socket) {

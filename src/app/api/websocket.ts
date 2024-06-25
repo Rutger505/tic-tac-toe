@@ -2,7 +2,6 @@ import express from "express";
 import * as http from "http";
 import { Server, Socket } from "socket.io";
 import db from "@/lib/db";
-import { User } from "lucide-react";
 
 const app = express();
 const server = http.createServer(app);
@@ -42,9 +41,8 @@ io.on("connection", (socket: Socket) => {
     queue.push({ socket, user });
     console.log("Player joined queue:", user.name);
 
-    // Try to match players if there are at least two in the queue
     if (queue.length >= 2) {
-      matchPlayers();
+      await matchPlayers();
     }
   });
 
@@ -57,7 +55,7 @@ io.on("connection", (socket: Socket) => {
   });
 });
 
-function matchPlayers() {
+async function matchPlayers() {
   const player1 = queue.shift();
   const player2 = queue.shift();
 
@@ -72,27 +70,76 @@ function matchPlayers() {
   }
 
   console.log(`Matched players: ${player1.user.name}, ${player2.user.name}`);
-  player1.socket.emit("match", { opponent: player2.user, symbol: "X" });
-  player2.socket.emit("match", { opponent: player1.user, symbol: "O" });
 
-  startGame(player1.socket, player2.socket);
+  const game = await db.game.create({
+    data: {
+      playerXId: player1.user.id,
+      playerOId: player2.user.id,
+      result: "ongoing",
+    },
+  });
+
+  player1.socket.emit("match", {
+    opponent: player2.user,
+    symbol: "X",
+    gameId: game.id,
+  });
+  player2.socket.emit("match", {
+    opponent: player1.user,
+    symbol: "O",
+    gameId: game.id,
+  });
+
+  startGame(player1.socket, player2.socket, game.id);
+
+  player1.socket.on("make-move", async (data) => {
+    await db.move.create({
+      data: {
+        gameId: game.id,
+        playerId: player1.user.id,
+        position: data.position,
+        symbol: data.symbol,
+      },
+    });
+    player2.socket.emit("opponent-move", data);
+  });
+
+  player2.socket.on("make-move", async (data) => {
+    await db.move.create({
+      data: {
+        gameId: game.id,
+        playerId: player2.user.id,
+        position: data.position,
+        symbol: data.symbol,
+      },
+    });
+    player1.socket.emit("opponent-move", data);
+  });
+
+  player1.socket.on("disconnect", async () => {
+    await db.game.update({
+      where: { id: game.id },
+      data: {
+        winnerId: player2.user.id,
+        result: "player O wins by disconnect",
+      },
+    });
+    player2.socket.emit("opponent-disconnected");
+  });
+
+  player2.socket.on("disconnect", async () => {
+    await db.game.update({
+      where: { id: game.id },
+      data: {
+        winnerId: player1.user.id,
+        result: "player X wins by disconnect",
+      },
+    });
+    player1.socket.emit("opponent-disconnected");
+  });
 }
 
-function startGame(socket1: Socket, socket2: Socket) {
-  socket1.on("make-move", (data) => {
-    socket2.emit("opponent-move", data);
-  });
-  socket2.on("make-move", (data) => {
-    socket1.emit("opponent-move", data);
-  });
-
-  socket1.on("disconnect", () => {
-    socket2.emit("opponent-disconnected");
-  });
-  socket2.on("disconnect", () => {
-    socket1.emit("opponent-disconnected");
-  });
-}
+function startGame(socket1: Socket, socket2: Socket, gameId: string) {}
 
 const port = process.env.WEBSOCKET_PORT
   ? parseInt(process.env.WEBSOCKET_PORT)
