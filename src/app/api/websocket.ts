@@ -79,67 +79,45 @@ async function matchPlayers() {
     },
   });
 
-  player1.socket.emit("match", {
-    opponent: player2.user,
-    symbol: "X",
-    gameId: game.id,
-  });
-  player2.socket.emit("match", {
-    opponent: player1.user,
-    symbol: "O",
-    gameId: game.id,
-  });
-
-  startGame(player1.socket, player2.socket, game.id);
-
-  player1.socket.on("make-move", async (data) => {
-    await db.move.create({
-      data: {
-        gameId: game.id,
-        playerId: player1.user.id,
-        position: data.position,
-        symbol: data.symbol,
-      },
-    });
-    player2.socket.emit("opponent-move", data);
-  });
-
-  player2.socket.on("make-move", async (data) => {
-    await db.move.create({
-      data: {
-        gameId: game.id,
-        playerId: player2.user.id,
-        position: data.position,
-        symbol: data.symbol,
-      },
-    });
-    player1.socket.emit("opponent-move", data);
-  });
-
-  player1.socket.on("disconnect", async () => {
-    await db.game.update({
-      where: { id: game.id },
-      data: {
-        winnerId: player2.user.id,
-        result: "player O wins by disconnect",
-      },
-    });
-    player2.socket.emit("opponent-disconnected");
-  });
-
-  player2.socket.on("disconnect", async () => {
-    await db.game.update({
-      where: { id: game.id },
-      data: {
-        winnerId: player1.user.id,
-        result: "player X wins by disconnect",
-      },
-    });
-    player1.socket.emit("opponent-disconnected");
-  });
+  createEvents(player1, player2, game.id, "X");
+  createEvents(player2, player1, game.id, "O");
 }
 
-function startGame(socket1: Socket, socket2: Socket, gameId: string) {}
+function createEvents(
+  player: Player,
+  opponent: Player,
+  gameId: string,
+  symbol: string,
+) {
+  player.socket.emit("match", {
+    opponent,
+    symbol,
+    gameId,
+  });
+
+  player.socket.on("make-move", async (data) => {
+    await db.move.create({
+      data: {
+        gameId,
+        playerId: player.user.id,
+        position: data.position,
+        symbol: data.symbol,
+      },
+    });
+    opponent.socket.emit("opponent-move", data);
+  });
+
+  opponent.socket.on("disconnect", async () => {
+    await db.game.update({
+      where: { id: gameId },
+      data: {
+        winnerId: player.user.id,
+        result: `player ${player.user.name} (${symbol}) wins by disconnect`,
+      },
+    });
+    player.socket.emit("opponent-disconnected");
+  });
+}
 
 const port = process.env.WEBSOCKET_PORT
   ? parseInt(process.env.WEBSOCKET_PORT)
