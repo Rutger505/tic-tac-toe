@@ -18,7 +18,7 @@ export default function UserList({
           <TableRow key={user.id}>
             <TableCell>
               <Image
-                src={user.image ?? "/avatar-placeholder.svg"}
+                src={user.image ?? "/avatar-placeholder.webp"}
                 alt={user.name}
                 width={32}
                 height={32}
