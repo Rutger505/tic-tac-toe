@@ -6,6 +6,7 @@ import { TimerIcon } from "@/components/icons/TimerIcon";
 import { PlusIcon } from "@/components/icons/PlusIcon";
 import { useState } from "react";
 import { CheckIcon } from "lucide-react";
+import { sendFriendRequest } from "@/app/friends/actions";
 
 interface CurrentFriendsFormProps {
   users: User[];
@@ -31,7 +32,11 @@ export default function AddFriendsForm({
     );
 
     if (!friendship) {
-      return <PlusIcon className={"h-4 ml-1"} />;
+      return (
+        <button onClick={() => sendFriendRequest(user.id)}>
+          <PlusIcon className={"h-4 ml-1"} />
+        </button>
+      );
     }
 
     if (friendship.status === "pending") {

@@ -24,8 +24,6 @@ export async function CurrentFriends() {
     },
   });
 
-  console.log("friendships", friendships);
-
   const friends = friendships
     .map((friendship) => {
       if (friendship.user1Id === session.session.user.id) {
@@ -34,8 +32,6 @@ export async function CurrentFriends() {
       return friendship.user1;
     })
     .filter((user): user is User => user.name != null && user.email != null);
-
-  console.log("friends", friends);
 
   return (
     <UserList
