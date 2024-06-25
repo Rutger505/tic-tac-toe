@@ -1,10 +1,9 @@
 import { redirect } from "next/navigation";
 import db from "@/lib/db";
-import { TrashIcon } from "@/components/icons/TrashIcon";
-import UserList from "@/components/friends/UserList";
 import { auth } from "@/auth";
+import CurrentFriendsForm from "@/components/friends/CurrentFriendsForm";
 
-export async function CurrentFriends() {
+export default async function CurrentFriends() {
   const session = await auth();
   if (!session) {
     return redirect("/");
@@ -33,14 +32,5 @@ export async function CurrentFriends() {
     })
     .filter((user): user is User => user.name != null && user.email != null);
 
-  return (
-    <UserList
-      users={friends}
-      actionCell={(user) => (
-        <button>
-          <TrashIcon className={"h-4 -mb-1"} />
-        </button>
-      )}
-    />
-  );
+  return <CurrentFriendsForm users={friends} />;
 }

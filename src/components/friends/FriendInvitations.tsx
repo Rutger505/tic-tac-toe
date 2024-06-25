@@ -1,27 +1,35 @@
-import UserList from "@/components/friends/UserList";
-import { PlusIcon } from "@/components/icons/PlusIcon";
+import db from "@/lib/db";
+import { auth } from "@/auth";
+import { redirect } from "next/navigation";
+import FriendInvitationsForm from "@/components/friends/FriendInvitationsForm";
 
-export default function FriendInvitations() {
-  const users = [
-    {
-      id: "idesd",
-      name: "RutgerDeN00b",
-      email: "jogn@email.com",
+export default async function FriendInvitations() {
+  const session = await auth();
+  if (!session) {
+    return redirect("/");
+  }
+
+  console.log(session);
+
+  const invitations = await db.friendship.findMany({
+    where: {
+      status: "pending",
+      user2Id: session.session.user.id,
     },
-    {
-      id: "idasdflkjasdf;lkasdfesd",
-      name: "John Doe",
-      email: "asfsadf@asd.com",
+    include: {
+      user1: true,
+      user2: true,
     },
-  ];
-  return (
-    <UserList
-      users={users}
-      actionCell={(user) => (
-        <button>
-          <PlusIcon className={"h-4 ml-1"} />
-        </button>
-      )}
-    />
-  );
+  });
+
+  const invitationUsers = invitations
+    .map((invitation) => {
+      if (invitation.user1Id === session.session.user.id) {
+        return invitation.user2;
+      }
+      return invitation.user1;
+    })
+    .filter((user): user is User => user.name != null && user.email != null);
+
+  return <FriendInvitationsForm users={invitationUsers} />;
 }
