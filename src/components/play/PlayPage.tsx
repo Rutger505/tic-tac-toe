@@ -55,31 +55,29 @@ export default function PlayPage({ loggedInUser }: Readonly<PlayPageProps>) {
   }, [isPlayerTurn, opponent, opponentSymbol, playerSymbol]);
 
   useEffect(() => {
-    const socket = io(process.env.NEXT_PUBLIC_WEBSOCKET_URL as string);
+    const socketInstance = io(process.env.NEXT_PUBLIC_WEBSOCKET_URL as string);
 
-    setSocket(socket);
+    setSocket(socketInstance);
 
-    socket.on("match", handleMatch);
+    socketInstance.on("match", handleMatch);
+    socketInstance.on("opponent-move", handleOpponentMove);
+    socketInstance.on("opponent-disconnect", handleOpponentDisconnect);
+    socketInstance.on("game-end", handleGameEnd);
 
-    socket.on("opponent-move", handleOpponentMove);
-
-    socket.on("opponent-disconnect", handleOpponentDisconnect);
-
-    socket.on("game-end", handleGameEnd);
-
-    socket.emit("join-queue", { userId: loggedInUser.id });
+    socketInstance.emit("join-queue", { userId: loggedInUser.id });
 
     return () => {
-      socket.disconnect();
+      socketInstance.disconnect();
+      setSocket(null);
     };
-  }, []);
+  }, [loggedInUser.id]);
 
   function handleMatch(data: MatchData) {
     setPlayerSymbol(data.symbol);
-    setIsPlayerTurn(playerSymbol === PlayerSymbol.X);
+    setIsPlayerTurn(data.symbol === PlayerSymbol.X);
     setOpponent(data.opponent);
     setOpponentSymbol(
-      playerSymbol === PlayerSymbol.X ? PlayerSymbol.O : PlayerSymbol.X,
+      data.symbol === PlayerSymbol.X ? PlayerSymbol.O : PlayerSymbol.X,
     );
   }
 
@@ -95,29 +93,23 @@ export default function PlayPage({ loggedInUser }: Readonly<PlayPageProps>) {
   function handleOpponentDisconnect() {
     console.log("Opponent disconnected");
 
-    if (!socket) {
-      console.error("Socket is not initialized");
-      return;
-    }
-
     setStatus("Opponent disconnected. Waiting for a new match...");
     setBoard(Array(9).fill(null));
     setIsPlayerTurn(false);
     setPlayerSymbol(null);
-    // setOpponent(null);
-    socket.emit("join-queue", { userId: loggedInUser.id });
-  }
+    setOpponent(null);
 
-  function getOpponentOpponentSymbolPlayerSymbol() {
-    if (!opponent || !opponentSymbol || !playerSymbol) {
-      throw new Error("Opponent, opponentSymbol, or playerSymbol is null");
+    if (socket) {
+      socket.emit("join-queue", { userId: loggedInUser.id });
+    } else {
+      console.error("Socket is not initialized");
     }
-    return { opponent, opponentSymbol, playerSymbol };
   }
 
   function handleGameEnd({ state }: { state: GameState }) {
-    const { opponent, opponentSymbol, playerSymbol } =
-      getOpponentOpponentSymbolPlayerSymbol();
+    if (!opponent || !opponentSymbol || !playerSymbol) {
+      throw new Error("Opponent, opponentSymbol, or playerSymbol is null");
+    }
 
     console.log("Game end", { opponent, opponentSymbol, playerSymbol, state });
 
@@ -148,6 +140,13 @@ export default function PlayPage({ loggedInUser }: Readonly<PlayPageProps>) {
       default:
         throw new Error("Invalid game state");
     }
+
+    // Reset game state after game ends
+    setTimeout(() => {
+      setIsPlayerTurn(false);
+      setPlayerSymbol(null);
+      setOpponent(null);
+    }, 500);
   }
 
   const handleCellClick = (index: number) => {
