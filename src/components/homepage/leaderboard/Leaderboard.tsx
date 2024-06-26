@@ -1,88 +1,94 @@
-"use client";
-
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import LeaderboardList from "@/components/homepage/leaderboard/LeaderboardList";
+import db from "@/lib/db";
+import { auth } from "@/auth";
 
-export default function Leaderboard() {
-  const demoUsers = [
-    {
-      id: "1",
-      name: "Alice",
-      wins: 10,
-      winPercentage: 5.0,
-      position: 1,
-    },
-    {
-      id: "2",
-      name: "Bob",
-      wins: 5,
-      winPercentage: 25.0,
-      position: 2,
-    },
-    {
-      id: "3",
-      name: "Charlie",
-      wins: 20,
-      winPercentage: 50.0,
-      position: 3,
-    },
-    {
-      id: "4",
-      name: "David",
-      wins: 15,
-      winPercentage: 30.0,
-      position: 4,
-    },
-    {
-      id: "5",
-      name: "Eva",
-      wins: 8,
-      winPercentage: 16.0,
-      position: 5,
-    },
-    {
-      id: "6",
-      name: "Frank",
-      wins: 12,
-      winPercentage: 24.0,
-      position: 6,
-    },
-    {
-      id: "7",
-      name: "Grace",
-      wins: 7,
-      winPercentage: 14.0,
-      position: 7,
-    },
-    {
-      id: "8",
-      name: "Hannah",
-      wins: 25,
-      winPercentage: 62.5,
-      position: 8,
-    },
-    {
-      id: "9",
-      name: "Ivan",
-      wins: 9,
-      winPercentage: 18.0,
-      position: 9,
-    },
-    {
-      id: "10",
-      name: "Judy",
-      wins: 13,
-      winPercentage: 26.0,
-      position: 10,
-    },
-  ];
-  const currentUser = {
-    id: "1123",
-    position: 6532,
-    name: "You",
-    wins: 0,
-    winPercentage: 0.0,
+function getUserWithStats(
+  user: {
+    gamesPlayerO: {
+      id: string;
+      playerXId: string;
+      playerOId: string;
+      winnerId: string | null;
+      state: number;
+      createdAt: Date;
+      updatedAt: Date;
+    }[];
+    gamesPlayerX: {
+      id: string;
+      playerXId: string;
+      playerOId: string;
+      winnerId: string | null;
+      state: number;
+      createdAt: Date;
+      updatedAt: Date;
+    }[];
+    id: string;
+    name: string | null;
+    gamesWon: {
+      id: string;
+      playerXId: string;
+      playerOId: string;
+      winnerId: string | null;
+      state: number;
+      createdAt: Date;
+      updatedAt: Date;
+    }[];
+  },
+  period: "daily" | "weekly" | "all-time",
+) {
+  const games = [...user.gamesPlayerO, ...user.gamesPlayerX];
+  const gamesInPeriod = games.filter((game) => {
+    const now = new Date();
+    const gameDate = new Date(game.createdAt);
+    if (period === "daily") {
+      return gameDate.getDate() === now.getDate();
+    } else if (period === "weekly") {
+      return gameDate.getDate() >= now.getDate() - 7;
+    } else {
+      return true;
+    }
+  });
+
+  const wins = gamesInPeriod.filter((game) => game.winnerId === user.id).length;
+  const winPercentage =
+    gamesInPeriod.length === 0 ? 0 : (wins / gamesInPeriod.length) * 100;
+
+  return {
+    ...user,
+    name: user.name ?? "Anonymous",
+    wins,
+    winPercentage,
   };
+}
+
+export default async function Leaderboard() {
+  const session = await auth();
+
+  const users = (
+    await db.user.findMany({
+      select: {
+        id: true,
+        name: true,
+        gamesWon: true,
+        gamesPlayerO: true,
+        gamesPlayerX: true,
+      },
+    })
+  ).sort((a, b) => b.gamesWon.length - a.gamesWon.length);
+
+  const currentUser = await db.user.findFirst({
+    where: {
+      id: session.session.user.id,
+    },
+    select: {
+      id: true,
+      name: true,
+      gamesWon: true,
+      gamesPlayerO: true,
+      gamesPlayerX: true,
+    },
+  });
 
   return (
     <div className={"mx-auto mt-16"}>
@@ -105,13 +111,24 @@ export default function Leaderboard() {
           </TabsTrigger>
         </TabsList>
         <TabsContent value="daily" className={"max-h-80 overflow-y-auto"}>
-          <LeaderboardList users={demoUsers} currentUser={currentUser} />
+          <LeaderboardList
+            users={users.map((user) => getUserWithStats(user, "daily"))}
+            currentUser={currentUser && getUserWithStats(currentUser, "daily")}
+          />
         </TabsContent>
         <TabsContent value="weekly" className={"max-h-80 overflow-y-auto"}>
-          <LeaderboardList users={demoUsers} currentUser={currentUser} />
+          <LeaderboardList
+            users={users.map((user) => getUserWithStats(user, "weekly"))}
+            currentUser={currentUser && getUserWithStats(currentUser, "weekly")}
+          />
         </TabsContent>
         <TabsContent value="all-time" className={"max-h-80 overflow-y-auto"}>
-          <LeaderboardList users={demoUsers} currentUser={currentUser} />
+          <LeaderboardList
+            users={users.map((user) => getUserWithStats(user, "all-time"))}
+            currentUser={
+              currentUser && getUserWithStats(currentUser, "all-time")
+            }
+          />
         </TabsContent>
       </Tabs>
     </div>
