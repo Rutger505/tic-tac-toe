@@ -34,91 +34,38 @@ export default function PlayPage({ loggedInUser }: Readonly<PlayPageProps>) {
   const [board, setBoard] = useState<(PlayerSymbol | null)[]>(
     Array(9).fill(null),
   );
+  const [status, setStatus] = useState("Searching for opponent...");
   const [isPlayerTurn, setIsPlayerTurn] = useState(false);
   const [playerSymbol, setPlayerSymbol] = useState<PlayerSymbol | null>(null);
   const [opponent, setOpponent] = useState<User | null>(null);
-  const [status, setStatus] = useState("Searching for opponent...");
+  const [opponentSymbol, setOpponentSymbol] = useState<PlayerSymbol | null>(
+    null,
+  );
 
   useEffect(() => {
-    if (opponent === null || playerSymbol === null) {
+    if (playerSymbol === null || opponent === null || opponentSymbol === null) {
       return;
     }
-    const opponentSymbol =
-      playerSymbol === PlayerSymbol.X ? PlayerSymbol.O : PlayerSymbol.X;
 
     setStatus(
       isPlayerTurn
         ? `Your (${getSymbolCharacter(playerSymbol)}) turn`
         : `${opponent.name}'s (${getSymbolCharacter(opponentSymbol)}) turn`,
     );
-  }, [isPlayerTurn, opponent]);
+  }, [isPlayerTurn, opponent, opponentSymbol, playerSymbol]);
 
   useEffect(() => {
     const socket = io(process.env.NEXT_PUBLIC_WEBSOCKET_URL as string);
 
     setSocket(socket);
 
-    socket.on("match", ({ opponent, symbol }: MatchData) => {
-      console.log(opponent);
-      setOpponent(opponent);
-      setPlayerSymbol(symbol);
-      setIsPlayerTurn(symbol === PlayerSymbol.X);
-    });
+    socket.on("match", handleMatch);
 
-    socket.on("opponent-move", (data: MoveData) => {
-      setBoard((prevBoard) => {
-        const newBoard = [...prevBoard];
-        newBoard[data.position] = data.symbol;
-        return newBoard;
-      });
-      setIsPlayerTurn(true);
-    });
+    socket.on("opponent-move", handleOpponentMove);
 
-    socket.on("opponent-disconnected", () => {
-      setStatus("Opponent disconnected. Waiting for a new match...");
-      setBoard(Array(9).fill(null));
-      setIsPlayerTurn(false);
-      setPlayerSymbol(null);
-      setOpponent(null);
-      socket.emit("join-queue", { userId: loggedInUser.id });
-    });
+    socket.on("opponent-disconnect", handleOpponentDisconnect);
 
-    socket.on("game-end", (data) => {
-      console.log(opponent);
-
-      const opponentSymbol =
-        playerSymbol === PlayerSymbol.X ? PlayerSymbol.O : PlayerSymbol.X;
-      const opponentWonMessage = `${opponent.name} (${getSymbolCharacter(opponentSymbol)}) won!`;
-      const playerWonMessage = `You (${getSymbolCharacter(playerSymbol!)} won!`;
-
-      switch (data.state) {
-        case GameState.Draw:
-          setStatus("It's a draw!");
-          break;
-        case GameState.XWins:
-          setStatus(
-            playerSymbol === PlayerSymbol.X
-              ? playerWonMessage
-              : opponentWonMessage,
-          );
-          break;
-        case GameState.OWins:
-          setStatus(
-            playerSymbol === PlayerSymbol.O
-              ? playerWonMessage
-              : opponentWonMessage,
-          );
-          break;
-        case GameState.Cancelled:
-          setStatus("Opponent disconnected. Waiting for a new match...");
-          break;
-        default:
-          throw new Error("Invalid game state");
-      }
-    });
-    setIsPlayerTurn(false);
-    setPlayerSymbol(null);
-    setOpponent(null);
+    socket.on("game-end", handleGameEnd);
 
     socket.emit("join-queue", { userId: loggedInUser.id });
 
@@ -126,6 +73,82 @@ export default function PlayPage({ loggedInUser }: Readonly<PlayPageProps>) {
       socket.disconnect();
     };
   }, []);
+
+  function handleMatch(data: MatchData) {
+    setPlayerSymbol(data.symbol);
+    setIsPlayerTurn(playerSymbol === PlayerSymbol.X);
+    setOpponent(data.opponent);
+    setOpponentSymbol(
+      playerSymbol === PlayerSymbol.X ? PlayerSymbol.O : PlayerSymbol.X,
+    );
+  }
+
+  function handleOpponentMove({ position, symbol }: MoveData) {
+    setBoard((prevBoard) => {
+      const newBoard = [...prevBoard];
+      newBoard[position] = symbol;
+      return newBoard;
+    });
+    setIsPlayerTurn(true);
+  }
+
+  function handleOpponentDisconnect() {
+    console.log("Opponent disconnected");
+
+    if (!socket) {
+      console.error("Socket is not initialized");
+      return;
+    }
+
+    setStatus("Opponent disconnected. Waiting for a new match...");
+    setBoard(Array(9).fill(null));
+    setIsPlayerTurn(false);
+    setPlayerSymbol(null);
+    // setOpponent(null);
+    socket.emit("join-queue", { userId: loggedInUser.id });
+  }
+
+  function getOpponentOpponentSymbolPlayerSymbol() {
+    if (!opponent || !opponentSymbol || !playerSymbol) {
+      throw new Error("Opponent, opponentSymbol, or playerSymbol is null");
+    }
+    return { opponent, opponentSymbol, playerSymbol };
+  }
+
+  function handleGameEnd({ state }: { state: GameState }) {
+    const { opponent, opponentSymbol, playerSymbol } =
+      getOpponentOpponentSymbolPlayerSymbol();
+
+    console.log("Game end", { opponent, opponentSymbol, playerSymbol, state });
+
+    const opponentWonMessage = `${opponent.name} (${getSymbolCharacter(opponentSymbol)}) won!`;
+    const playerWonMessage = `You (${getSymbolCharacter(playerSymbol!)} won!`;
+
+    switch (state) {
+      case GameState.Draw:
+        setStatus("It's a draw!");
+        break;
+      case GameState.XWins:
+        setStatus(
+          playerSymbol === PlayerSymbol.X
+            ? playerWonMessage
+            : opponentWonMessage,
+        );
+        break;
+      case GameState.OWins:
+        setStatus(
+          playerSymbol === PlayerSymbol.O
+            ? playerWonMessage
+            : opponentWonMessage,
+        );
+        break;
+      case GameState.Cancelled:
+        setStatus("Opponent disconnected. Waiting for a new match...");
+        break;
+      default:
+        throw new Error("Invalid game state");
+    }
+  }
 
   const handleCellClick = (index: number) => {
     if (

@@ -90,11 +90,6 @@ function createEvents(
   gameId: string,
   symbol: PlayerSymbol,
 ) {
-  player.socket.emit("match", {
-    opponent: opponent.user,
-    symbol,
-  });
-
   player.socket.on("make-move", async (data) => {
     await db.move.create({
       data: {
@@ -130,7 +125,12 @@ function createEvents(
         state: GameState.Cancelled,
       },
     });
-    player.socket.emit("opponent-disconnected");
+    player.socket.emit("opponent-disconnect");
+  });
+
+  player.socket.emit("match", {
+    opponent: opponent.user,
+    symbol,
   });
 }
 
