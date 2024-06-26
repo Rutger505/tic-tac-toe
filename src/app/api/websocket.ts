@@ -2,7 +2,7 @@ import express from "express";
 import * as http from "http";
 import { Server, Socket } from "socket.io";
 import db from "@/lib/db";
-import { User } from "@/lib/types";
+import { GameState, PlayerSymbol, User } from "@/types/types";
 
 const app = express();
 const server = http.createServer(app);
@@ -76,19 +76,19 @@ async function matchPlayers() {
     data: {
       playerXId: player1.user.id,
       playerOId: player2.user.id,
-      result: "ongoing",
+      state: GameState.Ongoing,
     },
   });
 
-  createEvents(player1, player2, game.id, "X");
-  createEvents(player2, player1, game.id, "O");
+  createEvents(player1, player2, game.id, PlayerSymbol.X);
+  createEvents(player2, player1, game.id, PlayerSymbol.O);
 }
 
 function createEvents(
   player: Player,
   opponent: Player,
   gameId: string,
-  symbol: string,
+  symbol: PlayerSymbol,
 ) {
   player.socket.emit("match", {
     opponent: opponent.user,
@@ -107,41 +107,39 @@ function createEvents(
     opponent.socket.emit("opponent-move", data);
 
     const board = await getBoardPositions(gameId);
-    const result = checkGameState(board, data.symbol);
+    const gameState = checkGameState(board, data.symbol);
 
-    if (!result) {
-      // Game is still ongoing
+    if (gameState === GameState.Ongoing) {
       return;
     }
 
     await db.game.update({
       where: { id: gameId },
       data: {
-        result: result === "draw" ? "draw" : `${player.user.id} wins`,
+        state: gameState,
       },
     });
-    player.socket.emit("game-over", { result });
-    opponent.socket.emit("game-over", { result });
+    player.socket.emit("game-end", { state: gameState });
+    opponent.socket.emit("game-end", { state: gameState });
   });
 
   opponent.socket.on("disconnect", async () => {
     await db.game.update({
       where: { id: gameId },
       data: {
-        winnerId: player.user.id,
-        result: `player ${player.user.name} (${symbol}) wins by disconnect`,
+        state: GameState.Cancelled,
       },
     });
     player.socket.emit("opponent-disconnected");
   });
 }
 
-async function getBoardPositions(gameId: string): Promise<(string | null)[]> {
+async function getBoardPositions(gameId: string) {
   const moves = await db.move.findMany({
     where: { gameId },
   });
 
-  const board = Array(9).fill(null);
+  const board: (PlayerSymbol | null)[] = Array(9).fill(null);
   moves.forEach((move) => {
     board[move.position] = move.symbol;
   });
@@ -149,7 +147,7 @@ async function getBoardPositions(gameId: string): Promise<(string | null)[]> {
   return board;
 }
 
-function checkGameState(board: (string | null)[], symbol: string) {
+function checkGameState(board: (PlayerSymbol | null)[], symbol: PlayerSymbol) {
   const winPatterns = [
     [0, 1, 2],
     [3, 4, 5],
@@ -163,15 +161,15 @@ function checkGameState(board: (string | null)[], symbol: string) {
 
   for (const pattern of winPatterns) {
     if (pattern.every((index) => board[index] === symbol)) {
-      return symbol;
+      return symbol === PlayerSymbol.X ? GameState.XWins : GameState.OWins;
     }
   }
 
   if (board.every((cell) => cell !== null)) {
-    return "draw";
+    return GameState.Draw;
   }
 
-  return null;
+  return GameState.Ongoing;
 }
 
 const port = process.env.WEBSOCKET_PORT

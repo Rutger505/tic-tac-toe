@@ -86,7 +86,7 @@ model Game {
   playerOId String
   winnerId  String?
   moves     Move[]
-  result    String
+  state     Int // See GameState enum in types.ts
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -100,7 +100,7 @@ model Move {
   gameId    String
   playerId  String
   position  Int
-  symbol    String
+  symbol    Int // See PlayerSymbol enum in types.ts
   createdAt DateTime @default(now())
 
   game Game @relation(fields: [gameId], references: [id])

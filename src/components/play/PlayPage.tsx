@@ -1,10 +1,8 @@
 "use client";
 
+import { GameState, PlayerSymbol, User } from "@/types/types";
 import { useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
-import { User } from "@/lib/types";
-
-type PlayerSymbol = "X" | "O" | null;
 
 interface MatchData {
   opponent: User;
@@ -20,23 +18,38 @@ interface PlayPageProps {
   loggedInUser: User;
 }
 
+function getSymbolCharacter(symbol: PlayerSymbol) {
+  switch (symbol) {
+    case PlayerSymbol.X:
+      return "⨉";
+    case PlayerSymbol.O:
+      return "〇";
+    default:
+      throw new Error("Invalid player symbol");
+  }
+}
+
 export default function PlayPage({ loggedInUser }: Readonly<PlayPageProps>) {
   const [socket, setSocket] = useState<Socket | null>(null);
-  const [board, setBoard] = useState<PlayerSymbol[]>(Array(9).fill(null));
+  const [board, setBoard] = useState<(PlayerSymbol | null)[]>(
+    Array(9).fill(null),
+  );
   const [isPlayerTurn, setIsPlayerTurn] = useState(false);
-  const [playerSymbol, setPlayerSymbol] = useState<PlayerSymbol>(null);
+  const [playerSymbol, setPlayerSymbol] = useState<PlayerSymbol | null>(null);
   const [opponent, setOpponent] = useState<User | null>(null);
   const [status, setStatus] = useState("Searching for opponent...");
 
   useEffect(() => {
-    if (opponent === null) {
+    if (opponent === null || playerSymbol === null) {
       return;
     }
-    const opponentSymbol = playerSymbol === "X" ? "O" : "X";
+    const opponentSymbol =
+      playerSymbol === PlayerSymbol.X ? PlayerSymbol.O : PlayerSymbol.X;
+
     setStatus(
       isPlayerTurn
-        ? `Your (${playerSymbol}) turn`
-        : `${opponent.name}'s (${opponentSymbol}) turn`,
+        ? `Your (${getSymbolCharacter(playerSymbol)}) turn`
+        : `${opponent.name}'s (${getSymbolCharacter(opponentSymbol)}) turn`,
     );
   }, [isPlayerTurn, opponent]);
 
@@ -45,10 +58,11 @@ export default function PlayPage({ loggedInUser }: Readonly<PlayPageProps>) {
 
     setSocket(socket);
 
-    socket.on("match", (data: MatchData) => {
-      setOpponent(data.opponent);
-      setPlayerSymbol(data.symbol);
-      setIsPlayerTurn(data.symbol === "X");
+    socket.on("match", ({ opponent, symbol }: MatchData) => {
+      console.log(opponent);
+      setOpponent(opponent);
+      setPlayerSymbol(symbol);
+      setIsPlayerTurn(symbol === PlayerSymbol.X);
     });
 
     socket.on("opponent-move", (data: MoveData) => {
@@ -69,14 +83,42 @@ export default function PlayPage({ loggedInUser }: Readonly<PlayPageProps>) {
       socket.emit("join-queue", { userId: loggedInUser.id });
     });
 
-    socket.on("game-over", (data) => {
-      setStatus(
-        data.result === "draw" ? "It's a draw!" : `Game Over! ${data.result}`,
-      );
-      setIsPlayerTurn(false);
-      setPlayerSymbol(null);
-      setOpponent(null);
+    socket.on("game-end", (data) => {
+      console.log(opponent);
+
+      const opponentSymbol =
+        playerSymbol === PlayerSymbol.X ? PlayerSymbol.O : PlayerSymbol.X;
+      const opponentWonMessage = `${opponent.name} (${getSymbolCharacter(opponentSymbol)}) won!`;
+      const playerWonMessage = `You (${getSymbolCharacter(playerSymbol!)} won!`;
+
+      switch (data.state) {
+        case GameState.Draw:
+          setStatus("It's a draw!");
+          break;
+        case GameState.XWins:
+          setStatus(
+            playerSymbol === PlayerSymbol.X
+              ? playerWonMessage
+              : opponentWonMessage,
+          );
+          break;
+        case GameState.OWins:
+          setStatus(
+            playerSymbol === PlayerSymbol.O
+              ? playerWonMessage
+              : opponentWonMessage,
+          );
+          break;
+        case GameState.Cancelled:
+          setStatus("Opponent disconnected. Waiting for a new match...");
+          break;
+        default:
+          throw new Error("Invalid game state");
+      }
     });
+    setIsPlayerTurn(false);
+    setPlayerSymbol(null);
+    setOpponent(null);
 
     socket.emit("join-queue", { userId: loggedInUser.id });
 
@@ -99,9 +141,11 @@ export default function PlayPage({ loggedInUser }: Readonly<PlayPageProps>) {
       return;
     }
 
-    const newBoard = [...board];
-    newBoard[index] = playerSymbol;
-    setBoard(newBoard);
+    setBoard((prevBoard) => {
+      const newBoard = [...prevBoard];
+      newBoard[index] = playerSymbol;
+      return newBoard;
+    });
     setIsPlayerTurn(false);
 
     socket.emit("make-move", { position: index, symbol: playerSymbol });
@@ -114,10 +158,10 @@ export default function PlayPage({ loggedInUser }: Readonly<PlayPageProps>) {
         {Array.from({ length: 9 }).map((_, index) => (
           <button
             key={index}
-            className="w-full h-full flex items-center justify-center text-3xl"
+            className="w-full h-full flex items-center justify-center text-7xl"
             onClick={() => handleCellClick(index)}
           >
-            {board[index]}
+            {board[index] !== null ? getSymbolCharacter(board[index]!) : ""}
           </button>
         ))}
 

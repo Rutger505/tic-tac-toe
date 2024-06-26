@@ -1,4 +1,4 @@
-interface User {
+export interface User {
   id: string;
   name: string;
   email: string;
@@ -7,6 +7,19 @@ interface User {
   role: string;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export enum GameState {
+  Ongoing,
+  Draw,
+  XWins,
+  OWins,
+  Cancelled,
+}
+
+export enum PlayerSymbol {
+  X,
+  O,
 }
 
 declare module "next-auth" {
