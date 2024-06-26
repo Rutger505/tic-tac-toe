@@ -73,11 +73,13 @@ export default function PlayPage({ loggedInUser }: Readonly<PlayPageProps>) {
   }, [loggedInUser.id]);
 
   function handleMatch(data: MatchData) {
-    setPlayerSymbol(data.symbol);
-    setIsPlayerTurn(data.symbol === PlayerSymbol.X);
-    setOpponent(data.opponent);
+    const { opponent: newOpponent, symbol: newSymbol } = data;
+
+    setPlayerSymbol(newSymbol);
+    setIsPlayerTurn(newSymbol === PlayerSymbol.X);
+    setOpponent(newOpponent);
     setOpponentSymbol(
-      data.symbol === PlayerSymbol.X ? PlayerSymbol.O : PlayerSymbol.X,
+      newSymbol === PlayerSymbol.X ? PlayerSymbol.O : PlayerSymbol.X,
     );
   }
 
@@ -107,6 +109,7 @@ export default function PlayPage({ loggedInUser }: Readonly<PlayPageProps>) {
   }
 
   function handleGameEnd({ state }: { state: GameState }) {
+    console.log("Game end", { opponent, opponentSymbol, playerSymbol, state });
     if (!opponent || !opponentSymbol || !playerSymbol) {
       throw new Error("Opponent, opponentSymbol, or playerSymbol is null");
     }
