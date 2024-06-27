@@ -1,6 +1,11 @@
 "use client";
 
-import { GameState, PlayerSymbol, User } from "@/types/types";
+import {
+  GameState,
+  PlayerSymbol,
+  User,
+  WebsocketErrorCode,
+} from "@/types/types";
 import { useEffect, useRef, useState } from "react";
 import { io, Socket } from "socket.io-client";
 
@@ -84,6 +89,11 @@ export default function PlayPage({ loggedInUser }: Readonly<PlayPageProps>) {
     socketInstance.on("opponent-move", handleOpponentMove);
     socketInstance.on("opponent-disconnect", handleOpponentDisconnect);
     socketInstance.on("game-end", handleGameEnd);
+    socketInstance.on("error", (error: { code: number; message: string }) => {
+      if (error.code === WebsocketErrorCode.AlreadyInQueue) {
+        setStatus("Already in queue.");
+      }
+    });
 
     socketInstance.emit("join-queue", { userId: loggedInUser.id });
 

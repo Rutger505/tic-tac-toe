@@ -22,6 +22,11 @@ export enum PlayerSymbol {
   O,
 }
 
+export enum WebsocketErrorCode {
+  InvalidUser,
+  AlreadyInQueue,
+}
+
 declare module "next-auth" {
   interface Session {
     user: User;

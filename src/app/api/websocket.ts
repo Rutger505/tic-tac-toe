@@ -2,7 +2,12 @@ import express from "express";
 import * as http from "http";
 import { Server, Socket } from "socket.io";
 import db from "@/lib/db";
-import { GameState, PlayerSymbol, User } from "@/types/types";
+import {
+  GameState,
+  PlayerSymbol,
+  User,
+  WebsocketErrorCode,
+} from "@/types/types";
 
 const app = express();
 const server = http.createServer(app);
@@ -35,7 +40,20 @@ io.on("connection", (socket: Socket) => {
     })) as User | null;
 
     if (!user) {
+      socket.emit("error", {
+        message: "Invalid User",
+        code: WebsocketErrorCode.InvalidUser,
+      });
       socket.disconnect();
+      return;
+    }
+    // Check if user is already in the queue
+    const userInQueue = queue.find((player) => player.user.id === userId);
+    if (userInQueue) {
+      socket.emit("error", {
+        message: "User already in queue",
+        code: WebsocketErrorCode.AlreadyInQueue,
+      });
       return;
     }
 
