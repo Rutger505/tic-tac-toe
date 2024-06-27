@@ -130,7 +130,7 @@ export default function PlayPage({ loggedInUser }: Readonly<PlayPageProps>) {
       console.error("Opponent is not initialized");
       return;
     }
-    // Null instead of falsy because playerSymbol is an enum (integer) that can be 0
+    // Null instead of falsy because playerSymbol is an enum (integer) that can be 0.
     if (opponentSymbolRef.current === null) {
       console.error("Opponent symbol is not initialized");
       return;
