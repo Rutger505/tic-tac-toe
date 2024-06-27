@@ -27,12 +27,12 @@ interface Player {
   user: User;
 }
 
-const queue: Player[] = [];
+const queue: Record<string, Player[]> = {};
 
 io.on("connection", (socket: Socket) => {
   console.log("a user connected:", socket.id);
 
-  socket.on("join-queue", async ({ userId }) => {
+  socket.on("join-queue", async ({ userId, roomId }) => {
     const user = (await db.user.findUnique({
       where: {
         id: userId,
@@ -48,7 +48,9 @@ io.on("connection", (socket: Socket) => {
       return;
     }
     // Check if user is already in the queue
-    const userInQueue = queue.find((player) => player.user.id === userId);
+    const userInQueue = queue[roomId]?.find(
+      (player) => player.user.id === userId,
+    );
     if (userInQueue) {
       socket.emit("error", {
         message: "User already in queue",
@@ -57,38 +59,48 @@ io.on("connection", (socket: Socket) => {
       return;
     }
 
-    queue.push({ socket, user });
-    console.log("Player joined queue:", user.name);
+    if (!queue[roomId]) {
+      queue[roomId] = [];
+    }
 
-    if (queue.length >= 2) {
-      await matchPlayers();
+    queue[roomId].push({ socket, user });
+    console.log(`Player joined queue in room ${roomId}:`, user.name);
+
+    if (queue[roomId].length >= 2) {
+      await matchPlayers(roomId);
     }
   });
 
   socket.on("disconnect", () => {
     console.log("user disconnected:", socket.id);
-    const index = queue.findIndex((player) => player.socket.id === socket.id);
-    if (index !== -1) {
-      queue.splice(index, 1);
+    for (const roomId in queue) {
+      const index = queue[roomId].findIndex(
+        (player) => player.socket.id === socket.id,
+      );
+      if (index !== -1) {
+        queue[roomId].splice(index, 1);
+      }
     }
   });
 });
 
-async function matchPlayers() {
-  const player1 = queue.shift();
-  const player2 = queue.shift();
+async function matchPlayers(roomId: string) {
+  const player1 = queue[roomId].shift();
+  const player2 = queue[roomId].shift();
 
   if (!player1 || !player2) {
     if (player1) {
-      queue.unshift(player1);
+      queue[roomId].unshift(player1);
     }
     if (player2) {
-      queue.unshift(player2);
+      queue[roomId].unshift(player2);
     }
     return;
   }
 
-  console.log(`Matched players: ${player1.user.name}, ${player2.user.name}`);
+  console.log(
+    `Matched players in room ${roomId}: ${player1.user.name}, ${player2.user.name}`,
+  );
 
   const game = await db.game.create({
     data: {
