@@ -108,17 +108,38 @@ function createEvents(
       return;
     }
 
+    let winnerId = null;
+
+    const playerWon =
+      (symbol === PlayerSymbol.X && gameState === GameState.XWins) ||
+      (symbol === PlayerSymbol.O && gameState === GameState.OWins);
+    const opponentWon =
+      (symbol === PlayerSymbol.O && gameState === GameState.XWins) ||
+      (symbol === PlayerSymbol.X && gameState === GameState.OWins);
+
+    if (playerWon) {
+      winnerId = player.user.id;
+    } else if (opponentWon) {
+      winnerId = opponent.user.id;
+    }
+
     await db.game.update({
       where: { id: gameId },
       data: {
         state: gameState,
+        winnerId,
       },
     });
+
     player.socket.emit("game-end", { state: gameState });
     opponent.socket.emit("game-end", { state: gameState });
+
+    removeEvents(player.socket);
+    removeEvents(opponent.socket);
   });
 
   opponent.socket.on("disconnect", async () => {
+    console.log("Opponent disconnected:", opponent.user.name);
     await db.game.update({
       where: { id: gameId },
       data: {
@@ -132,6 +153,11 @@ function createEvents(
     opponent: opponent.user,
     symbol,
   });
+}
+
+function removeEvents(socket: Socket) {
+  socket.removeAllListeners("make-move");
+  socket.removeAllListeners("disconnect");
 }
 
 async function getBoardPositions(gameId: string) {
