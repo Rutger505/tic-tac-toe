@@ -1,12 +1,13 @@
-import { RotatingIcon } from "@/components/play/RotatingIcon";
-import { CancelButton } from "@/components/play/CancelButton";
+import { redirect } from "next/navigation";
+import { auth } from "@/auth";
+import PlayPage from "@/components/play/PlayPage";
 
-export default function Queue() {
-  return (
-    <main className="flex flex-col items-center justify-center gap-10">
-      <h1 className="text-4xl font-bold">Waiting for opponent</h1>
-      <RotatingIcon />
-      <CancelButton />
-    </main>
-  );
+export default async function QueuePage() {
+  const session = await auth();
+
+  if (!session) {
+    return redirect("/");
+  }
+
+  return <PlayPage loggedInUser={session.session.user} />;
 }

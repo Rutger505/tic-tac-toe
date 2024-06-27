@@ -3,6 +3,7 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import db from "@/lib/db";
 import NextAuth from "next-auth";
 
+// @ts-ignore
 export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: PrismaAdapter(db),
   providers: [
@@ -19,6 +20,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     }),
   ],
   callbacks: {
+    // @ts-ignore
     async jwt(token, user) {
       if (user) {
         token.id = user.id;
@@ -29,10 +31,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       }
       return token;
     },
+    // @ts-ignore
     async session(session, user) {
       session.user = user;
       return session;
     },
   },
-  debug: process.env.NODE_ENV === "development",
 });

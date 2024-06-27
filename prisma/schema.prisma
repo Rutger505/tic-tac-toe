@@ -18,6 +18,9 @@ model User {
   sessions      Session[]
   friends       Friendship[] @relation("Friend")
   friendsOf     Friendship[] @relation("FriendOf")
+  gamesPlayerX  Game[]       @relation("GamePlayerX")
+  gamesPlayerO  Game[]       @relation("GamePlayerO")
+  gamesWon      Game[]       @relation("GameWinner")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -75,4 +78,30 @@ model Friendship {
   user2 User @relation("FriendOf", fields: [user2Id], references: [id], onDelete: Cascade)
 
   @@unique([user1Id, user2Id])
+}
+
+model Game {
+  id        String   @id @default(cuid())
+  playerXId String
+  playerOId String
+  winnerId  String?
+  moves     Move[]
+  state     Int // See GameState enum in types.ts
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  playerX User @relation("GamePlayerX", fields: [playerXId], references: [id])
+  playerO User @relation("GamePlayerO", fields: [playerOId], references: [id])
+  winner  User? @relation("GameWinner", fields: [winnerId], references: [id])
+}
+
+model Move {
+  id        String   @id @default(cuid())
+  gameId    String
+  playerId  String
+  position  Int
+  symbol    Int // See PlayerSymbol enum in types.ts
+  createdAt DateTime @default(now())
+
+  game Game @relation(fields: [gameId], references: [id])
 }
