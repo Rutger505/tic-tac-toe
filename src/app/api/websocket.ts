@@ -2,7 +2,12 @@ import express from "express";
 import * as http from "http";
 import { Server, Socket } from "socket.io";
 import db from "@/lib/db";
-import { GameState, PlayerSymbol, User } from "@/types/types";
+import {
+  GameState,
+  PlayerSymbol,
+  User,
+  WebsocketErrorCode,
+} from "@/types/types";
 
 const app = express();
 const server = http.createServer(app);
@@ -35,7 +40,20 @@ io.on("connection", (socket: Socket) => {
     })) as User | null;
 
     if (!user) {
+      socket.emit("error", {
+        message: "Invalid User",
+        code: WebsocketErrorCode.InvalidUser,
+      });
       socket.disconnect();
+      return;
+    }
+    // Check if user is already in the queue
+    const userInQueue = queue.find((player) => player.user.id === userId);
+    if (userInQueue) {
+      socket.emit("error", {
+        message: "User already in queue",
+        code: WebsocketErrorCode.AlreadyInQueue,
+      });
       return;
     }
 
@@ -108,17 +126,38 @@ function createEvents(
       return;
     }
 
+    let winnerId = null;
+
+    const playerWon =
+      (symbol === PlayerSymbol.X && gameState === GameState.XWins) ||
+      (symbol === PlayerSymbol.O && gameState === GameState.OWins);
+    const opponentWon =
+      (symbol === PlayerSymbol.O && gameState === GameState.XWins) ||
+      (symbol === PlayerSymbol.X && gameState === GameState.OWins);
+
+    if (playerWon) {
+      winnerId = player.user.id;
+    } else if (opponentWon) {
+      winnerId = opponent.user.id;
+    }
+
     await db.game.update({
       where: { id: gameId },
       data: {
         state: gameState,
+        winnerId,
       },
     });
+
     player.socket.emit("game-end", { state: gameState });
     opponent.socket.emit("game-end", { state: gameState });
+
+    removeEvents(player.socket);
+    removeEvents(opponent.socket);
   });
 
   opponent.socket.on("disconnect", async () => {
+    console.log("Opponent disconnected:", opponent.user.name);
     await db.game.update({
       where: { id: gameId },
       data: {
@@ -132,6 +171,11 @@ function createEvents(
     opponent: opponent.user,
     symbol,
   });
+}
+
+function removeEvents(socket: Socket) {
+  socket.removeAllListeners("make-move");
+  socket.removeAllListeners("disconnect");
 }
 
 async function getBoardPositions(gameId: string) {
