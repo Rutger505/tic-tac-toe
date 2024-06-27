@@ -42,9 +42,10 @@ function getUserWithStats(
     const now = new Date();
     const gameDate = new Date(game.createdAt);
     if (period === "daily") {
-      return gameDate.getDate() === now.getDate();
+      return gameDate.toDateString() === now.toDateString();
     } else if (period === "weekly") {
-      return gameDate.getDate() >= now.getDate() - 7;
+      const oneWeekAgo = new Date(now.setDate(now.getDate() - 7));
+      return gameDate >= oneWeekAgo;
     } else {
       return true;
     }
@@ -77,18 +78,37 @@ export default async function Leaderboard() {
     })
   ).sort((a, b) => b.gamesWon.length - a.gamesWon.length);
 
-  const currentUser = await db.user.findFirst({
-    where: {
-      id: session.session.user.id,
-    },
-    select: {
-      id: true,
-      name: true,
-      gamesWon: true,
-      gamesPlayerO: true,
-      gamesPlayerX: true,
-    },
-  });
+  const currentUser = session
+    ? await db.user.findFirst({
+        where: {
+          id: session.session.user.id,
+        },
+        select: {
+          id: true,
+          name: true,
+          gamesWon: true,
+          gamesPlayerO: true,
+          gamesPlayerX: true,
+        },
+      })
+    : null;
+
+  const currentUserDailyStats =
+    currentUser && getUserWithStats(currentUser, "daily");
+  const currentUserWeeklyStats =
+    currentUser && getUserWithStats(currentUser, "weekly");
+  const currentUserAllTimeStats =
+    currentUser && getUserWithStats(currentUser, "all-time");
+
+  const top10DailyUsers = users
+    .map((user) => getUserWithStats(user, "daily"))
+    .slice(0, 10);
+  const top10WeeklyUsers = users
+    .map((user) => getUserWithStats(user, "weekly"))
+    .slice(0, 10);
+  const top10AllTimeUsers = users
+    .map((user) => getUserWithStats(user, "all-time"))
+    .slice(0, 10);
 
   return (
     <div className={"mx-auto mt-16"}>
@@ -112,21 +132,40 @@ export default async function Leaderboard() {
         </TabsList>
         <TabsContent value="daily" className={"max-h-80 overflow-y-auto"}>
           <LeaderboardList
-            users={users.map((user) => getUserWithStats(user, "daily"))}
-            currentUser={currentUser && getUserWithStats(currentUser, "daily")}
+            users={top10DailyUsers}
+            currentUser={
+              currentUserDailyStats &&
+              !top10DailyUsers.some(
+                (user) => user.id === currentUserDailyStats.id,
+              )
+                ? currentUserDailyStats
+                : null
+            }
           />
         </TabsContent>
         <TabsContent value="weekly" className={"max-h-80 overflow-y-auto"}>
           <LeaderboardList
-            users={users.map((user) => getUserWithStats(user, "weekly"))}
-            currentUser={currentUser && getUserWithStats(currentUser, "weekly")}
+            users={top10WeeklyUsers}
+            currentUser={
+              currentUserWeeklyStats &&
+              !top10WeeklyUsers.some(
+                (user) => user.id === currentUserWeeklyStats.id,
+              )
+                ? currentUserWeeklyStats
+                : null
+            }
           />
         </TabsContent>
         <TabsContent value="all-time" className={"max-h-80 overflow-y-auto"}>
           <LeaderboardList
-            users={users.map((user) => getUserWithStats(user, "all-time"))}
+            users={top10AllTimeUsers}
             currentUser={
-              currentUser && getUserWithStats(currentUser, "all-time")
+              currentUserAllTimeStats &&
+              !top10AllTimeUsers.some(
+                (user) => user.id === currentUserAllTimeStats.id,
+              )
+                ? currentUserAllTimeStats
+                : null
             }
           />
         </TabsContent>
