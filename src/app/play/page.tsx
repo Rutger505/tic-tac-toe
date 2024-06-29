@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import PlayPage from "@/components/play/PlayPage";
 
-export default async function Page() {
+export default async function QueuePage() {
   const session = await auth();
 
   if (!session) {
