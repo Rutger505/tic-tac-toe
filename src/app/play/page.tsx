@@ -9,5 +9,6 @@ export default async function QueuePage() {
     return redirect("/");
   }
 
+  // @ts-ignore
   return <PlayPage loggedInUser={session.session.user} />;
 }
