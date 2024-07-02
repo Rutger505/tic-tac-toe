@@ -81,6 +81,89 @@ export default function PlayPage({ loggedInUser }: Readonly<PlayPageProps>) {
   }, [isPlayerTurn, opponent, opponentSymbol, playerSymbol]);
 
   useEffect(() => {
+    function handleMatch({ opponent, symbol }: MatchData) {
+      setPlayerSymbol(symbol);
+      setIsPlayerTurn(symbol === PlayerSymbol.X);
+      setOpponent(opponent);
+      setOpponentSymbol(
+        symbol === PlayerSymbol.X ? PlayerSymbol.O : PlayerSymbol.X,
+      );
+    }
+
+    function handleOpponentMove({ position, symbol }: MoveData) {
+      setBoard((prevBoard) => {
+        const newBoard = [...prevBoard];
+        newBoard[position] = symbol;
+        return newBoard;
+      });
+      setIsPlayerTurn(true);
+    }
+
+    function handleOpponentDisconnect() {
+      setStatus("Opponent disconnected. Waiting for a new match...");
+      setBoard(Array(9).fill(null));
+      setIsPlayerTurn(false);
+      setPlayerSymbol(null);
+      setOpponent(null);
+
+      if (socketRef.current) {
+        socketRef.current.emit("join-queue", { userId: loggedInUser.id });
+      } else {
+        console.error("Socket is not initialized");
+      }
+    }
+
+    function handleGameEnd({ state }: { state: GameState }) {
+      if (!opponentRef.current) {
+        console.error("Opponent is not initialized");
+        return;
+      }
+      // Null instead of falsy because playerSymbol is an enum (integer) that can be 0.
+      if (opponentSymbolRef.current === null) {
+        console.error("Opponent symbol is not initialized");
+        return;
+      }
+      if (playerSymbolRef.current === null) {
+        console.error("Player symbol is not initialized");
+        return;
+      }
+
+      const opponentWonMessage = `${opponentRef.current.name} (${getSymbolCharacter(opponentSymbolRef.current)}) won!`;
+      const playerWonMessage = `You (${getSymbolCharacter(playerSymbolRef.current)}) won!`;
+
+      switch (state) {
+        case GameState.Draw:
+          setStatus("It's a draw!");
+          break;
+        case GameState.XWins:
+          setStatus(
+            playerSymbolRef.current === PlayerSymbol.X
+              ? playerWonMessage
+              : opponentWonMessage,
+          );
+          break;
+        case GameState.OWins:
+          setStatus(
+            playerSymbolRef.current === PlayerSymbol.O
+              ? playerWonMessage
+              : opponentWonMessage,
+          );
+          break;
+        case GameState.Cancelled:
+          setStatus("Opponent disconnected. Waiting for a new match...");
+          break;
+        default:
+          throw new Error("Invalid game state");
+      }
+
+      // Reset game state after game ends
+      setTimeout(() => {
+        setIsPlayerTurn(false);
+        setPlayerSymbol(null);
+        setOpponent(null);
+      }, 500);
+    }
+
     const socketInstance = io(process.env.NEXT_PUBLIC_WEBSOCKET_URL as string);
 
     setSocket(socketInstance);
@@ -102,89 +185,6 @@ export default function PlayPage({ loggedInUser }: Readonly<PlayPageProps>) {
       setSocket(null);
     };
   }, [loggedInUser.id]);
-
-  function handleMatch({ opponent, symbol }: MatchData) {
-    setPlayerSymbol(symbol);
-    setIsPlayerTurn(symbol === PlayerSymbol.X);
-    setOpponent(opponent);
-    setOpponentSymbol(
-      symbol === PlayerSymbol.X ? PlayerSymbol.O : PlayerSymbol.X,
-    );
-  }
-
-  function handleOpponentMove({ position, symbol }: MoveData) {
-    setBoard((prevBoard) => {
-      const newBoard = [...prevBoard];
-      newBoard[position] = symbol;
-      return newBoard;
-    });
-    setIsPlayerTurn(true);
-  }
-
-  function handleOpponentDisconnect() {
-    setStatus("Opponent disconnected. Waiting for a new match...");
-    setBoard(Array(9).fill(null));
-    setIsPlayerTurn(false);
-    setPlayerSymbol(null);
-    setOpponent(null);
-
-    if (socketRef.current) {
-      socketRef.current.emit("join-queue", { userId: loggedInUser.id });
-    } else {
-      console.error("Socket is not initialized");
-    }
-  }
-
-  function handleGameEnd({ state }: { state: GameState }) {
-    if (!opponentRef.current) {
-      console.error("Opponent is not initialized");
-      return;
-    }
-    // Null instead of falsy because playerSymbol is an enum (integer) that can be 0.
-    if (opponentSymbolRef.current === null) {
-      console.error("Opponent symbol is not initialized");
-      return;
-    }
-    if (playerSymbolRef.current === null) {
-      console.error("Player symbol is not initialized");
-      return;
-    }
-
-    const opponentWonMessage = `${opponentRef.current.name} (${getSymbolCharacter(opponentSymbolRef.current)}) won!`;
-    const playerWonMessage = `You (${getSymbolCharacter(playerSymbolRef.current)}) won!`;
-
-    switch (state) {
-      case GameState.Draw:
-        setStatus("It's a draw!");
-        break;
-      case GameState.XWins:
-        setStatus(
-          playerSymbolRef.current === PlayerSymbol.X
-            ? playerWonMessage
-            : opponentWonMessage,
-        );
-        break;
-      case GameState.OWins:
-        setStatus(
-          playerSymbolRef.current === PlayerSymbol.O
-            ? playerWonMessage
-            : opponentWonMessage,
-        );
-        break;
-      case GameState.Cancelled:
-        setStatus("Opponent disconnected. Waiting for a new match...");
-        break;
-      default:
-        throw new Error("Invalid game state");
-    }
-
-    // Reset game state after game ends
-    setTimeout(() => {
-      setIsPlayerTurn(false);
-      setPlayerSymbol(null);
-      setOpponent(null);
-    }, 500);
-  }
 
   const handleCellClick = (index: number) => {
     if (

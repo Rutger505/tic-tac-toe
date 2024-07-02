@@ -2,6 +2,7 @@ import db from "@/lib/db";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import FriendInvitationsForm from "@/components/friends/FriendInvitationsForm";
+import { User } from "@/types/types";
 
 export default async function FriendInvitations() {
   const session = await auth();
@@ -14,6 +15,7 @@ export default async function FriendInvitations() {
   const invitations = await db.friendship.findMany({
     where: {
       status: "pending",
+      // @ts-ignore
       user2Id: session.session.user.id,
     },
     include: {
@@ -24,6 +26,7 @@ export default async function FriendInvitations() {
 
   const invitationUsers = invitations
     .map((invitation) => {
+      // @ts-ignore
       if (invitation.user1Id === session.session.user.id) {
         return invitation.user2;
       }

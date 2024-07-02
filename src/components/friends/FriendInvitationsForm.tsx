@@ -3,6 +3,7 @@
 import UserList from "@/components/friends/UserList";
 import { PlusIcon } from "@/components/icons/PlusIcon";
 import { acceptFriendRequest } from "@/app/friends/actions";
+import type { User } from "@/types/types";
 
 interface FriendInvitationsProps {
   users: User[];

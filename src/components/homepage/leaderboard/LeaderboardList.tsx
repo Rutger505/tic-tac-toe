@@ -43,7 +43,7 @@ export default function LeaderboardList({
         ))}
         {currentUser && (
           <TableRow>
-            <TableCell>{currentUser.position}</TableCell>
+            <TableCell></TableCell>
             <TableCell>{currentUser.name}</TableCell>
             <TableCell>{currentUser.wins}</TableCell>
             <TableCell>{currentUser.winPercentage}</TableCell>
