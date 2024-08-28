@@ -10,4 +10,4 @@ jobs:
     steps:
       - name: Send Deployment Request
         run: |
-          curl -X POST -H "Content-Type: application/json" -d "{\"key\":\"your_secret_key\"}" http://rutgerpronk.com:7856
+          curl -X POST -H "Content-Type: application/json" -d "{\"key\":\"${{ secrets.DEPLOY_KEY }}\"}" http://rutgerpronk.com:7856
