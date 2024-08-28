@@ -1,0 +1,13 @@
+name: Deploy
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Send Deployment Request
+        run: |
+          curl -X POST -H "Content-Type: application/json" -d "{\"key\":\"your_secret_key\"}" http://rutgerpronk.com:7856
