@@ -2,6 +2,7 @@ import express from "express";
 import * as http from "http";
 import { Server, Socket } from "socket.io";
 import db from "@/lib/db";
+// @ts-ignore
 import {
   GameState,
   PlayerSymbol,
