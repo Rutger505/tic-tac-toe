@@ -1,10 +1,11 @@
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("POSTGRES_URL")
 }
 
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-1.1.x"]
 }
 
 model User {
@@ -13,7 +14,7 @@ model User {
   email         String?      @unique
   emailVerified DateTime?
   image         String?
-  role          String      @default("user")
+  role          String       @default("user")
   accounts      Account[]
   sessions      Session[]
   friends       Friendship[] @relation("Friend")
@@ -90,8 +91,8 @@ model Game {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  playerX User @relation("GamePlayerX", fields: [playerXId], references: [id])
-  playerO User @relation("GamePlayerO", fields: [playerOId], references: [id])
+  playerX User  @relation("GamePlayerX", fields: [playerXId], references: [id])
+  playerO User  @relation("GamePlayerO", fields: [playerOId], references: [id])
   winner  User? @relation("GameWinner", fields: [winnerId], references: [id])
 }
 

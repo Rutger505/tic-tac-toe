@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "concurrently --kill-others --names \"next,websocket\" --prefix-colors \"cyan,green\"  \"npm run next-dev\" \"npm run ws-dev\"",
     "next-dev": "next dev",
-    "ws-dev": "bun --watch src/app/api/websocket.ts",
+    "ws-dev": "bun --hot src/app/api/websocket.ts",
     "production": "concurrently --kill-others --names \"next,websocket\" --prefix-colors \"cyan,green\"  \"npm run next-prod\" \"npm run ws-prod\"",
     "next-prod": "npm run build && npm run start",
     "build": "next build",
@@ -21,7 +21,6 @@
     "@radix-ui/react-tabs": "^1.0.4",
     "@types/bun": "^1.1.5",
     "@types/express": "^4.17.21",
-    "bun": "^1.1.17",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "express": "^4.19.2",

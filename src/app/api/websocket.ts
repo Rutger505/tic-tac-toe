@@ -13,8 +13,11 @@ import {
 const app = express();
 const server = http.createServer(app);
 
-const cors = process.env.NEXT_PUBLIC_BASE_URL;
-
+const cors = process.env.BASE_URL;
+if (!cors) {
+  console.error("BASE_URL environment variable is not set");
+  process.exit(1);
+}
 console.log("CORS:", cors);
 
 const io = new Server(server, {
