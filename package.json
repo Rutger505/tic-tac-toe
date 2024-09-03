@@ -8,7 +8,7 @@
     "next-dev": "next dev",
     "ws-dev": "bun --hot src/app/api/websocket.ts",
     "production": "concurrently --kill-others --names \"next,websocket\" --prefix-colors \"cyan,green\"  \"npm run next-prod\" \"npm run ws-prod\"",
-    "next-prod": "npm run build && npm run start",
+    "next-prod": "npm run start",
     "build": "next build",
     "start": "next start",
     "ws-prod": "bun src/app/api/websocket.ts",
