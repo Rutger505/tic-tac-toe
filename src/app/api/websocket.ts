@@ -33,7 +33,7 @@ interface Player {
 
 const queue: Record<string, Player[]> = {};
 
-io.on("connection", (socket: Socket) => {
+io.of("/ws").on("connection", (socket: Socket) => {
   console.log("a user connected:", socket.id);
 
   socket.on("join-queue", async ({ userId, roomId }) => {
