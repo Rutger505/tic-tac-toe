@@ -15,7 +15,6 @@ export default async function AddFriends() {
     await db.user.findMany({
       where: {
         id: {
-          // @ts-ignore
           not: session.session.user.id,
         },
       },
@@ -27,9 +26,8 @@ export default async function AddFriends() {
   const friendships = await db.friendship.findMany({
     where: {
       OR: [
-        // @ts-ignore
         { user1Id: session.session.user.id },
-        // @ts-ignore
+
         { user2Id: session.session.user.id },
       ],
     },

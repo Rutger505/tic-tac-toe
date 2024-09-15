@@ -14,9 +14,8 @@ export default async function CurrentFriends() {
     where: {
       status: "accepted",
       OR: [
-        // @ts-ignore
         { user1Id: session.session.user.id },
-        // @ts-ignore
+
         { user2Id: session.session.user.id },
       ],
     },
@@ -28,7 +27,6 @@ export default async function CurrentFriends() {
 
   const friends = friendships
     .map((friendship) => {
-      // @ts-ignore
       if (friendship.user1Id === session.session.user.id) {
         return friendship.user2;
       }

@@ -1,14 +1,13 @@
-import { redirect } from "next/navigation";
-import { auth } from "@/auth";
+import { auth, signIn } from "@/auth";
 import PlayPage from "@/components/play/PlayPage";
 
 export default async function QueuePage() {
   const session = await auth();
 
-  if (!session) {
-    return redirect("/");
+  if (!session?.user) {
+    await signIn();
+    return;
   }
 
-  // @ts-ignore
-  return <PlayPage loggedInUser={session.session.user} />;
+  return <PlayPage loggedInUser={session.user} />;
 }
