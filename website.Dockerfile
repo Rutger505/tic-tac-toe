@@ -27,7 +27,7 @@ WORKDIR /app
 COPY . .
 COPY --from=dependencies /app/node_modules ./node_modules
 
-RUN prisma generate
+RUN npx prisma generate
 
 RUN npm run build
 
@@ -42,7 +42,7 @@ WORKDIR /app
 
 EXPOSE 3000
 
-COPY --from=builder /app/next.config.js ./
+COPY --from=builder /app/next.config.mjs ./
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/package.json /app/package-lock.json ./
