@@ -1,7 +1,7 @@
 import express from "express";
 import * as http from "http";
 import { Server } from "socket.io";
-import GameWebSocketNamespace from "@/app/api/play/websocket";
+import PlayWebSocketNamespace from "@/app/api/play/websocket";
 
 const cors = process.env.BASE_URL;
 if (!cors) {
@@ -18,7 +18,7 @@ const io = new Server(server, {
   },
 });
 
-const namespaces = [new GameWebSocketNamespace()];
+const namespaces = [new PlayWebSocketNamespace()];
 
 namespaces.forEach((namespace) => {
   namespace.setupNamespace(io);

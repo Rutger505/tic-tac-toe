@@ -2,8 +2,6 @@ FROM oven/bun:1.1.26-debian AS base
 
 FROM base AS development
 
-ENV DEBUG=*
-
 WORKDIR /app
 
 COPY . .

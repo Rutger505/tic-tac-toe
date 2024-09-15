@@ -13,11 +13,11 @@ interface Player {
   user: User;
 }
 
-export default class GameWebSocketNamespace implements WebSocketNamespace {
+export default class PlayWebSocketNamespace implements WebSocketNamespace {
   private readonly queue: Record<string, Player[]> = {};
 
   public setupNamespace(io: Server): void {
-    io.of("/ws").on("connection", (socket: Socket) => {
+    io.of("/play").on("connection", (socket: Socket) => {
       console.log("a user connected:", socket.id);
 
       socket.on("join-queue", async ({ userId, roomId }) => {

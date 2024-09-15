@@ -164,7 +164,7 @@ export default function PlayPage({ loggedInUser }: Readonly<PlayPageProps>) {
       }, 500);
     }
 
-    const socketInstance = io(process.env.NEXT_PUBLIC_WEBSOCKET_URL as string);
+    const socketInstance = io("/play");
 
     setSocket(socketInstance);
 
