@@ -10,7 +10,7 @@ COPY . .
 
 EXPOSE 3001
 
-CMD ["bun", "--hot", "src/app/api/websocket.ts"]
+CMD ["bun", "--hot", "src/app/api/websockets.ts"]
 
 
 FROM base AS production
@@ -19,4 +19,4 @@ WORKDIR /app
 
 COPY . .
 
-CMD ["bun", "src/app/api/websocket.ts"]
+CMD ["bun", "src/app/api/websockets.ts"]

@@ -5,12 +5,12 @@
   "scripts": {
     "dev": "concurrently --kill-others --names \"next,websocket\" --prefix-colors \"cyan,green\"  \"npm run next-dev\" \"npm run ws-dev\"",
     "next-dev": "next dev",
-    "ws-dev": "bun --hot src/app/api/websocket.ts",
+    "ws-dev": "bun --hot src/app/api/websockets.ts",
     "production": "concurrently --kill-others --names \"next,websocket\" --prefix-colors \"cyan,green\"  \"npm run next-prod\" \"npm run ws-prod\"",
     "next-prod": "npm run start",
     "build": "next build",
     "start": "next start",
-    "ws-prod": "bun src/app/api/websocket.ts",
+    "ws-prod": "bun src/app/api/websockets.ts",
     "lint": "next lint"
   },
   "dependencies": {
