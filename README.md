@@ -8,7 +8,7 @@ Tic-tac-toe website made with Next.js. Uses Accounts to be able to play with fri
     ```bash
     npm install
     ```
-2. Copy the `.env.example` file to `.env` and fill in the values'
+2. Copy the `.env.example` file to `.env` and fill in the required values
 3. Push prisma schema to the database
     ```bash
     prisma db push
@@ -17,4 +17,3 @@ Tic-tac-toe website made with Next.js. Uses Accounts to be able to play with fri
     ```bash
     npm run dev
     ```
-

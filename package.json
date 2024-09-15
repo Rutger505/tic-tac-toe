@@ -1,17 +1,16 @@
 {
-  "type": "module",
   "name": "tic-tac-toe",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "concurrently --kill-others --names \"next,websocket\" --prefix-colors \"cyan,green\"  \"npm run next-dev\" \"npm run ws-dev\"",
     "next-dev": "next dev",
-    "ws-dev": "bun --watch src/app/api/websocket.ts",
+    "ws-dev": "bun --hot src/app/api/websockets.ts",
     "production": "concurrently --kill-others --names \"next,websocket\" --prefix-colors \"cyan,green\"  \"npm run next-prod\" \"npm run ws-prod\"",
-    "next-prod": "npm run build && npm run start",
+    "next-prod": "npm run start",
     "build": "next build",
     "start": "next start",
-    "ws-prod": "bun src/app/api/websocket.ts",
+    "ws-prod": "bun src/app/api/websockets.ts",
     "lint": "next lint"
   },
   "dependencies": {
@@ -21,7 +20,6 @@
     "@radix-ui/react-tabs": "^1.0.4",
     "@types/bun": "^1.1.5",
     "@types/express": "^4.17.21",
-    "bun": "^1.1.17",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "express": "^4.19.2",
@@ -37,15 +35,16 @@
     "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
-    "@types/node": "^20.14.8",
+    "@types/node": "^20.16.3",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "@types/socket.io": "^3.0.2",
     "concurrently": "^8.2.2",
     "eslint": "^8",
     "eslint-config-next": "14.2.3",
     "postcss": "^8",
     "prisma": "^5.15.0",
     "tailwindcss": "^3.4.1",
-    "typescript": "^5"
+    "typescript": "^5.5.4"
   }
 }
