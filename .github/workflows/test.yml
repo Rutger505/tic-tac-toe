@@ -8,8 +8,9 @@ on:
 jobs:
   build-and-start:
     runs-on: ubuntu-latest
-    environment: Testing
     name: Build
+    env:
+      BASE_URL: https://tic-tac-toe.rutgerpronk.com
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
