@@ -1,7 +1,7 @@
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { ReactNode } from "react";
 import Image from "next/image";
-import { User } from "@/types/types";
+import { User } from "@/types/user";
 
 interface UserListProps {
   users: User[];

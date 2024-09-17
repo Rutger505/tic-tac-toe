@@ -31,7 +31,7 @@ export default class PlayWebSocketNamespace implements WebSocketNamespace {
           socket.disconnect();
           return;
         }
-        // Check if user is already in the queue
+
         const userInQueue = this.queue[roomId]?.find(
           (player) => player.user.id === userId,
         );

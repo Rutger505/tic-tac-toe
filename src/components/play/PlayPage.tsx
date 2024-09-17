@@ -1,13 +1,10 @@
 "use client";
 
-import {
-  GameState,
-  PlayerSymbol,
-  User,
-  WebsocketErrorCode,
-} from "@/types/types";
+import { GameState, PlayerSymbol, WebsocketErrorCode } from "@/types/types";
 import { useEffect, useRef, useState } from "react";
+
 import { io, Socket } from "socket.io-client";
+import { User } from "@/types/user";
 
 interface MatchData {
   opponent: User;

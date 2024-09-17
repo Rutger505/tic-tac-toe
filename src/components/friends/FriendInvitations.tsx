@@ -2,6 +2,7 @@ import db from "@/lib/db";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import FriendInvitationsForm from "@/components/friends/FriendInvitationsForm";
+import { User } from "@/types/user";
 
 export default async function FriendInvitations() {
   const session = await auth();
@@ -22,12 +23,29 @@ export default async function FriendInvitations() {
 
   const invitationUsers = invitations
     .map((invitation) => {
-      if (invitation.user1Id === session.user.id) {
-        return invitation.user2;
+      if (!("user1" in invitation) || !("user2" in invitation)) {
+        throw new Error("Invitation is missing user1 or user2");
       }
-      return invitation.user1;
+
+      if (invitation.user1Id === session.user.id) {
+        return {
+          id: invitation.user2.id,
+          name: invitation.user2.name ?? undefined,
+          email: invitation.user2.email ?? undefined,
+          image: invitation.user2.image ?? undefined,
+        };
+      }
+      return {
+        id: invitation.user1.id,
+        name: invitation.user1.name ?? undefined,
+        email: invitation.user1.email ?? undefined,
+        image: invitation.user1.image ?? undefined,
+      };
     })
-    .filter((user) => user.name != null && user.email != null);
+    .filter(
+      (user): user is User =>
+        !!user.id && !!user.name && !!user.email && !!user.image,
+    );
 
   return <FriendInvitationsForm users={invitationUsers} />;
 }
