@@ -12,7 +12,7 @@ export async function sendFriendRequest(userId: string) {
 
   await db.friendship.create({
     data: {
-      user1Id: session.session.user.id,
+      user1Id: session.user.id,
       user2Id: userId,
     },
   });
@@ -29,7 +29,7 @@ export async function acceptFriendRequest(userId: string) {
     where: {
       user1Id: userId,
 
-      user2Id: session.session.user.id,
+      user2Id: session.user.id,
     },
   });
 
@@ -60,13 +60,13 @@ export async function removeFriend(userId: string) {
     where: {
       OR: [
         {
-          user1Id: session.session.user.id,
+          user1Id: session.user.id,
           user2Id: userId,
         },
         {
           user1Id: userId,
 
-          user2Id: session.session.user.id,
+          user2Id: session.user.id,
         },
       ],
     },

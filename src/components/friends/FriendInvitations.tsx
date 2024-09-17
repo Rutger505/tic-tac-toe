@@ -9,8 +9,6 @@ export default async function FriendInvitations() {
     return redirect("/");
   }
 
-  console.log(session);
-
   const invitations = await db.friendship.findMany({
     where: {
       status: "pending",

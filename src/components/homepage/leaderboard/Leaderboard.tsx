@@ -83,7 +83,7 @@ export default async function Leaderboard() {
   const currentUser = session
     ? await db.user.findFirst({
         where: {
-          id: session.session?.user.id,
+          id: session?.user.id,
         },
         select: {
           id: true,

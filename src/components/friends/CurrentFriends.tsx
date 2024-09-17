@@ -13,11 +13,7 @@ export default async function CurrentFriends() {
   const friendships = await db.friendship.findMany({
     where: {
       status: "accepted",
-      OR: [
-        { user1Id: session.session.user.id },
-
-        { user2Id: session.session.user.id },
-      ],
+      OR: [{ user1Id: session.user.id }, { user2Id: session.user.id }],
     },
     include: {
       user1: true,
@@ -27,7 +23,7 @@ export default async function CurrentFriends() {
 
   const friends = friendships
     .map((friendship) => {
-      if (friendship.user1Id === session.session.user.id) {
+      if (friendship.user1Id === session.user.id) {
         return friendship.user2;
       }
       return friendship.user1;
