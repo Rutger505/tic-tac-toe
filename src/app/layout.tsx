@@ -8,7 +8,7 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.BASE_URL),
-  title: "Tic-tac-toe – Multiplayer",
+  title: "Tic-tac-toe | Multiplayer",
   description: "Play tic-tac-toe with your friends online!",
   keywords: [
     "Rutger Pronk",
@@ -21,9 +21,9 @@ export const metadata: Metadata = {
     "game",
   ],
   openGraph: {
-    title: "Tic-tac-toe – Multiplayer",
+    title: "Tic-tac-toe | Multiplayer",
     description: "Play tic-tac-toe with your friends online!",
-    siteName: "Tic-tac-toe – Multiplayer",
+    siteName: "Tic-tac-toe | Multiplayer",
     type: "website",
     locale: "en",
     url: new URL(process.env.BASE_URL),
