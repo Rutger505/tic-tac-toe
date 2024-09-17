@@ -2,8 +2,33 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { ReactNode, StrictMode } from "react";
 import Header from "@/components/Header";
+import { Metadata } from "next";
 
 const inter = Inter({ subsets: ["latin"] });
+
+export const metadata: Metadata = {
+  metadataBase: process.env.BASE_URL,
+  title: "Tic-tac-toe – Multiplayer",
+  description: "Play tic-tac-toe with your friends online!",
+  keywords: [
+    "Rutger Pronk",
+    "Rutger",
+    "Pronk",
+    "tic-tac-toe",
+    "tic-tac-toe multiplayer",
+    "multiplayer",
+    "online",
+    "game",
+  ],
+  openGraph: {
+    title: "Tic-tac-toe – Multiplayer",
+    description: "Play tic-tac-toe with your friends online!",
+    siteName: "Tic-tac-toe – Multiplayer",
+    type: "website",
+    locale: "en",
+    url: process.env.BASE_URL,
+  },
+};
 
 export default function RootLayout({
   children,
