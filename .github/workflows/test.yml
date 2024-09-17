@@ -8,7 +8,7 @@ on:
 jobs:
   build-and-start:
     runs-on: ubuntu-latest
-    environment: Preview
+    environment: Testing
     name: Build
     steps:
       - name: Checkout code
