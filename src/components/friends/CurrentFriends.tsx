@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import db from "@/lib/db";
 import { auth } from "@/auth";
 import CurrentFriendsForm from "@/components/friends/CurrentFriendsForm";
-import { User } from "@/types/types";
+import { User } from "@/types/user";
 
 export default async function CurrentFriends() {
   const session = await auth();
@@ -13,12 +13,7 @@ export default async function CurrentFriends() {
   const friendships = await db.friendship.findMany({
     where: {
       status: "accepted",
-      OR: [
-        // @ts-ignore
-        { user1Id: session.session.user.id },
-        // @ts-ignore
-        { user2Id: session.session.user.id },
-      ],
+      OR: [{ user1Id: session.user.id }, { user2Id: session.user.id }],
     },
     include: {
       user1: true,
@@ -27,14 +22,30 @@ export default async function CurrentFriends() {
   });
 
   const friends = friendships
-    .map((friendship) => {
-      // @ts-ignore
-      if (friendship.user1Id === session.session.user.id) {
-        return friendship.user2;
+    .map((friendship): Partial<User> => {
+      if (!("user1" in friendship) || !("user2" in friendship)) {
+        throw new Error("Friendship is missing user1 or user2");
       }
-      return friendship.user1;
+
+      if (friendship.user1Id === session.user.id) {
+        return {
+          id: friendship.user2.id,
+          name: friendship.user2.name ?? undefined,
+          email: friendship.user2.email ?? undefined,
+          image: friendship.user2.image ?? undefined,
+        };
+      }
+      return {
+        id: friendship.user1.id,
+        name: friendship.user1.name ?? undefined,
+        email: friendship.user1.email ?? undefined,
+        image: friendship.user1.image ?? undefined,
+      };
     })
-    .filter((user): user is User => user.name != null && user.email != null);
+    .filter(
+      (user): user is User =>
+        !!user.id && !!user.name && !!user.email && !!user.image,
+    );
 
   return <CurrentFriendsForm users={friends} />;
 }

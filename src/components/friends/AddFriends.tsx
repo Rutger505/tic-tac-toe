@@ -2,36 +2,41 @@ import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import db from "@/lib/db";
 import AddFriendsForm from "@/components/friends/AddFriendsForm";
-import { User } from "@/types/types";
+import { User } from "@/types/user";
 
 export default async function AddFriends() {
   const session = await auth();
 
-  if (!session) {
+  if (!session?.user) {
     return redirect("/");
   }
 
-  const users = (
-    await db.user.findMany({
-      where: {
-        id: {
-          // @ts-ignore
-          not: session.session.user.id,
-        },
+  const users = (await db.user.findMany({
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      image: true,
+    },
+    where: {
+      id: {
+        not: session.user.id,
       },
-    })
-  ).filter((user): user is User => {
-    return user.name != null && user.email != null;
-  });
+      name: {
+        not: null,
+      },
+      email: {
+        not: null,
+      },
+      image: {
+        not: null,
+      },
+    },
+  })) as User[];
 
   const friendships = await db.friendship.findMany({
     where: {
-      OR: [
-        // @ts-ignore
-        { user1Id: session.session.user.id },
-        // @ts-ignore
-        { user2Id: session.session.user.id },
-      ],
+      OR: [{ user1Id: session.user.id }, { user2Id: session.user.id }],
     },
   });
 

@@ -7,7 +7,7 @@ import { PlusIcon } from "@/components/icons/PlusIcon";
 import { useState } from "react";
 import { CheckIcon } from "lucide-react";
 import { sendFriendRequest } from "@/app/friends/actions";
-import { User } from "@/types/types";
+import { User } from "@/types/user";
 
 interface CurrentFriendsFormProps {
   users: User[];

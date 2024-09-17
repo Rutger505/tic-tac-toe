@@ -1,12 +1,8 @@
 import { WebSocketNamespace } from "@/types/websockets";
 import { Server, Socket } from "socket.io";
-import {
-  GameState,
-  PlayerSymbol,
-  User,
-  WebsocketErrorCode,
-} from "@/types/types";
+import { GameState, PlayerSymbol, WebsocketErrorCode } from "@/types/types";
 import db from "@/lib/db";
+import { User } from "@/types/user";
 
 interface Player {
   socket: Socket;
@@ -17,7 +13,7 @@ export default class PlayWebSocketNamespace implements WebSocketNamespace {
   private readonly queue: Record<string, Player[]> = {};
 
   public setupNamespace(io: Server): void {
-    io.of("/play").on("connection", (socket: Socket) => {
+    io.of("/play").on("connection", (socket) => {
       console.log("a user connected:", socket.id);
 
       socket.on("join-queue", async ({ userId, roomId }) => {
@@ -35,7 +31,7 @@ export default class PlayWebSocketNamespace implements WebSocketNamespace {
           socket.disconnect();
           return;
         }
-        // Check if user is already in the queue
+
         const userInQueue = this.queue[roomId]?.find(
           (player) => player.user.id === userId,
         );
@@ -77,18 +73,22 @@ export default class PlayWebSocketNamespace implements WebSocketNamespace {
     const player1 = this.queue[roomId].shift();
     const player2 = this.queue[roomId].shift();
 
-    if (!player1 || !player2) {
-      if (player1) {
-        this.queue[roomId].unshift(player1);
-      }
+    if (!player1) {
       if (player2) {
         this.queue[roomId].unshift(player2);
       }
       return;
     }
 
+    if (!player2) {
+      if (player1) {
+        this.queue[roomId].unshift(player1);
+      }
+      return;
+    }
+
     console.log(
-      `Matched players in room ${roomId}: ${player1.user.name}, ${player2.user.name}`,
+      `Matched players in room ${roomId}: ${player1.user.name} and ${player2.user.name}`,
     );
 
     const game = await db.game.create({
@@ -98,6 +98,10 @@ export default class PlayWebSocketNamespace implements WebSocketNamespace {
         state: GameState.Ongoing,
       },
     });
+
+    if (!("id" in game)) {
+      throw new Error("Game not created");
+    }
 
     this.createEvents(player1, player2, game.id, PlayerSymbol.X);
     this.createEvents(player2, player1, game.id, PlayerSymbol.O);

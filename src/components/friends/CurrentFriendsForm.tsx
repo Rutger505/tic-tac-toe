@@ -3,7 +3,7 @@
 import { TrashIcon } from "@/components/icons/TrashIcon";
 import UserList from "@/components/friends/UserList";
 import { removeFriend } from "@/app/friends/actions";
-import { User } from "@/types/types";
+import { User } from "@/types/user";
 
 interface CurrentFriendsFormProps {
   users: User[];
