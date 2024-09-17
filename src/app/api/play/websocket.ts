@@ -12,16 +12,6 @@ interface Player {
 export default class PlayWebSocketNamespace implements WebSocketNamespace {
   private readonly queue: Record<string, Player[]> = {};
 
-  private demoPlayer: Player = {
-    socket: null as Socket,
-    user: {
-      id: "demo",
-      name: "Demo Player",
-      email: "sdf",
-      image: "sdf",
-    },
-  };
-
   public setupNamespace(io: Server): void {
     io.of("/play").on("connection", (socket) => {
       console.log("a user connected:", socket.id);
