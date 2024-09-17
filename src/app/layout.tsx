@@ -7,7 +7,7 @@ import { Metadata } from "next";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.BASE_URL),
+  metadataBase: new URL(process.env.BASE_URL as string),
   title: "Tic-tac-toe | Multiplayer",
   description: "Play tic-tac-toe with your friends online!",
   keywords: [
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     siteName: "Tic-tac-toe | Multiplayer",
     type: "website",
     locale: "en",
-    url: new URL(process.env.BASE_URL),
+    url: new URL(process.env.BASE_URL as string),
   },
 };
 
