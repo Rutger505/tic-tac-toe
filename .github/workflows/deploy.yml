@@ -34,11 +34,11 @@ jobs:
     steps:
       - name: Send Deployment Request
         run: |
-          curl                                               \ 
-            --request POST                                   \
-            --header "Content-Type: application/json"        \
-            --data "{\"key\":\"${{ secrets.DEPLOY_KEY }}\"}" \
-            --max-time 480                                   \
-            --fail                                           \
-            --verbose                                        \
+          curl \
+            --request POST \
+            --header "Content-Type: application/json" \
+            --data "{\"key\":\"***\"}" \
+            --max-time 480 \
+            --fail \
+            --verbose \
             http://rutgerpronk.com:7856
