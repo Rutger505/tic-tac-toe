@@ -40,3 +40,7 @@ next-env.d.ts
 *.sqlite
 *.db
 *.db-journal
+
+.vscode/
+tmp/
+temp/
