@@ -5,6 +5,7 @@ const requiredEnvVars = [
   "POSTGRES_USER",
   "POSTGRES_PASSWORD",
   "POSTGRES_DB",
+  "POSTGRES_PORT",
 ];
 
 requiredEnvVars.forEach((envVar) => {
@@ -19,6 +20,7 @@ export const dataSourceOptions: DataSourceOptions = {
   username: process.env.POSTGRES_USER,
   password: process.env.POSTGRES_PASSWORD,
   database: process.env.POSTGRES_DB,
+  port: parseInt(process.env.POSTGRES_PORT),
 };
 
 const appDataSource = new DataSource(dataSourceOptions);
