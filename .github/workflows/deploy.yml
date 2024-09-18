@@ -37,7 +37,7 @@ jobs:
           curl \
             --request POST \
             --header "Content-Type: application/json" \
-            --data "{\"key\":\"***\"}" \
+            --data "{\"key\":\"${{ secrets.DEPLOY_KEY }}\"}" \
             --max-time 480 \
             --fail \
             --verbose \
