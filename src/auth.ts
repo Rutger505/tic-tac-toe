@@ -1,8 +1,8 @@
 import Google from "@auth/core/providers/google";
-import { PrismaAdapter } from "@auth/prisma-adapter";
-import db from "@/lib/db";
 import NextAuth, { type DefaultSession } from "next-auth";
 import { User } from "@/types/user";
+import { DrizzleAdapter } from "@auth/drizzle-adapter";
+import { db } from "@/schema";
 
 declare module "next-auth" {
   /**
@@ -14,7 +14,7 @@ declare module "next-auth" {
 }
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
-  adapter: PrismaAdapter(db),
+  adapter: DrizzleAdapter(db),
   providers: [
     Google({
       profile(profile) {
