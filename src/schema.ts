@@ -13,8 +13,8 @@ import type { AdapterAccountType } from "next-auth/adapters";
 if (!process.env.POSTGRES_URL) {
   throw new Error("POSTGRES_URL environment variable is required");
 }
-const pool = postgres(process.env.POSTGRES_URL, { max: 1 });
 
+const pool = postgres(process.env.POSTGRES_URL, { max: 1 });
 export const db = drizzle(pool);
 
 export const users = pgTable("user", {
