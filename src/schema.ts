@@ -1,6 +1,7 @@
 import {
   boolean,
   integer,
+  pgEnum,
   pgTable,
   primaryKey,
   text,
@@ -93,3 +94,66 @@ export const authenticators = pgTable(
     }),
   }),
 );
+
+export const FriendshipStatus = pgEnum("FriendshipStatus", [
+  "pending",
+  "accepted",
+  "rejected",
+]);
+
+export const Friendships = pgTable("Friendship", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  status: FriendshipStatus("FriendshipStatus").notNull(),
+  user1Id: text("user1Id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  user2Id: text("user2Id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  createdAt: timestamp("createdAt", { mode: "date" }).notNull(),
+});
+
+export const GameState = pgEnum("GameState", [
+  "pending",
+  "inProgress",
+  "draw",
+  "playerXWon",
+  "playerOWon",
+]);
+
+export const games = pgTable("Game", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  playerXId: text("playerXId")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  playerOId: text("playerOId")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  winnerId: text("winnerId").references(() => users.id, {
+    onDelete: "cascade",
+  }),
+  state: GameState("GameState").notNull(),
+  createdAt: timestamp("createdAt", { mode: "date" }).notNull(),
+  updatedAt: timestamp("updatedAt", { mode: "date" }).notNull(),
+});
+
+export const PlayerSymbol = pgEnum("PlayerSymbol", ["X", "O"]);
+
+export const moves = pgTable("Move", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  gameId: text("gameId")
+    .notNull()
+    .references(() => games.id, { onDelete: "cascade" }),
+  playerId: text("playerId")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  position: integer("position").notNull(),
+  symbol: PlayerSymbol("PlayerSymbol").notNull(),
+  createdAt: timestamp("createdAt", { mode: "date" }).notNull(),
+});
