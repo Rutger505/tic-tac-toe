@@ -21,6 +21,7 @@ export const dataSourceOptions: DataSourceOptions = {
   password: process.env.POSTGRES_PASSWORD,
   database: process.env.POSTGRES_DB,
   port: parseInt(process.env.POSTGRES_PORT),
+  entities: ["src/database/entity/entities.ts"],
 };
 
 const appDataSource = new DataSource(dataSourceOptions);
