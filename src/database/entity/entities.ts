@@ -6,7 +6,8 @@ import {
   PrimaryGeneratedColumn,
   ValueTransformer,
 } from "typeorm";
-import { GameState, PlayerSymbol } from "@/types/types";
+// Typeorm cli does not load the typescript path aliases
+import { GameState, PlayerSymbol } from "../../types/types.ts";
 
 const transformer: Record<"date" | "bigint", ValueTransformer> = {
   date: {
