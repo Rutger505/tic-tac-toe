@@ -1,7 +1,6 @@
 import { WebSocketNamespace } from "@/types/websockets";
 import { Server, Socket } from "socket.io";
 import { GameState, PlayerSymbol, WebsocketErrorCode } from "@/types/types";
-import db from "@/lib/db";
 import { User } from "@/types/user";
 
 interface Player {

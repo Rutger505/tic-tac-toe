@@ -1,4 +1,3 @@
-import db from "@/lib/db";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import FriendInvitationsForm from "@/components/friends/FriendInvitationsForm";

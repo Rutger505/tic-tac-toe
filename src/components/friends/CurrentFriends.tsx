@@ -1,5 +1,4 @@
 import { redirect } from "next/navigation";
-import db from "@/lib/db";
 import { auth } from "@/auth";
 import CurrentFriendsForm from "@/components/friends/CurrentFriendsForm";
 import { User } from "@/types/user";

@@ -1,6 +1,6 @@
 "use server";
 
-import db from "@/lib/db";
+"@/lib/db";
 import { auth } from "@/auth";
 
 export async function sendFriendRequest(userId: string) {

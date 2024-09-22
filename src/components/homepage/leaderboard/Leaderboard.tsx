@@ -1,7 +1,8 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import LeaderboardList from "@/components/homepage/leaderboard/LeaderboardList";
-import db from "@/lib/db";
 import { auth } from "@/auth";
+import { userRepository } from "@/database";
+import { IsNull, Not } from "typeorm";
 
 function getUserWithStats(
   user: {
@@ -68,17 +69,36 @@ function getUserWithStats(
 export default async function Leaderboard() {
   const session = await auth();
 
-  const users = (
-    await db.user.findMany({
-      select: {
-        id: true,
-        name: true,
-        gamesWon: true,
-        gamesPlayerO: true,
-        gamesPlayerX: true,
-      },
-    })
-  ).sort((a, b) => b.gamesWon.length - a.gamesWon.length);
+  // const users = (
+  //   await db.user.findMany({
+  //     select: {
+  //       id: true,
+  //       name: true,
+  //       gamesWon: true,
+  //       gamesPlayerO: true,
+  //       gamesPlayerX: true,
+  //     },
+  //   })
+  // ).sort((a, b) => b.gamesWon.length - a.gamesWon.length);
+
+  const users = await userRepository.find({
+    where: {
+      name: Not(IsNull()),
+      email: Not(IsNull()),
+      image: Not(IsNull()),
+    },
+    relations: {
+      gamesWon: true,
+      gamesPlayerO: true,
+      gamesPlayerX: true,
+    },
+  });
+
+  users.forEach((user) => {
+    console.log(user);
+  });
+
+  return "test";
 
   const currentUser = session
     ? await db.user.findFirst({
