@@ -7,7 +7,7 @@ import {
   ValueTransformer,
 } from "typeorm";
 // Typeorm cli does not load the typescript path aliases
-import { GameState, PlayerSymbol } from "../../types/types.ts";
+import { GameState, PlayerSymbol } from "../../types/types";
 
 const transformer: Record<"date" | "bigint", ValueTransformer> = {
   date: {
@@ -20,7 +20,7 @@ const transformer: Record<"date" | "bigint", ValueTransformer> = {
   },
 };
 
-@Entity({ name: "users" })
+@Entity()
 export class UserEntity {
   @PrimaryGeneratedColumn("uuid")
   id!: string;
@@ -66,7 +66,7 @@ export class UserEntity {
   updatedAt!: Date;
 }
 
-@Entity({ name: "accounts" })
+@Entity()
 export class AccountEntity {
   @PrimaryGeneratedColumn("uuid")
   id!: string;
@@ -120,7 +120,7 @@ export class AccountEntity {
   user!: UserEntity;
 }
 
-@Entity({ name: "sessions" })
+@Entity()
 export class SessionEntity {
   @PrimaryGeneratedColumn("uuid")
   id!: string;
@@ -138,7 +138,7 @@ export class SessionEntity {
   user!: UserEntity;
 }
 
-@Entity({ name: "verification_tokens" })
+@Entity()
 export class VerificationTokenEntity {
   @PrimaryGeneratedColumn("uuid")
   id!: string;
@@ -153,7 +153,7 @@ export class VerificationTokenEntity {
   expires!: string;
 }
 
-@Entity({ name: "friendships" })
+@Entity()
 export class FriendshipEntity {
   @PrimaryGeneratedColumn("uuid")
   id!: string;
@@ -179,7 +179,7 @@ export class FriendshipEntity {
   createdAt!: Date;
 }
 
-@Entity({ name: "games" })
+@Entity()
 export class GameEntity {
   @PrimaryGeneratedColumn("uuid")
   id!: string;
@@ -226,7 +226,7 @@ export class GameEntity {
   updatedAt!: Date;
 }
 
-@Entity({ name: "moves" })
+@Entity()
 export class MoveEntity {
   @PrimaryGeneratedColumn("uuid")
   id!: string;

@@ -1,6 +1,6 @@
 import { DataSource, DataSourceOptions } from "typeorm";
-import * as entities from "./entity/entities.ts";
-import { UserEntity } from "./entity/entities.ts";
+import * as entities from "./entity/entities";
+import { UserEntity } from "./entity/entities";
 
 const requiredEnvVars = [
   "POSTGRES_HOST",
@@ -22,17 +22,10 @@ export const dataSourceOptions: DataSourceOptions = {
   username: process.env.POSTGRES_USER,
   password: process.env.POSTGRES_PASSWORD,
   database: process.env.POSTGRES_DB,
-  port: parseInt(process.env.POSTGRES_PORT),
+  port: parseInt(process.env.POSTGRES_PORT as string),
   entities,
 };
 
 export const appDataSource = new DataSource(dataSourceOptions);
-
-appDataSource.initialize().then(() => {
-  console.log(appDataSource.isInitialized);
-
-  console.log("Database initialized");
-  console.log(appDataSource.manager.find(UserEntity));
-});
 
 export const userRepository = appDataSource.getRepository(UserEntity);
