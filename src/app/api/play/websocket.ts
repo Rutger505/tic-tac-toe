@@ -3,6 +3,7 @@ import { Server, Socket } from "socket.io";
 import { GameState, PlayerSymbol, WebsocketErrorCode } from "@/types/types";
 import db from "@/lib/db";
 import { User } from "@/types/user";
+import { getUser } from "@/lib/user";
 
 interface Player {
   socket: Socket;
@@ -17,11 +18,11 @@ export default class PlayWebSocketNamespace implements WebSocketNamespace {
       console.log("a user connected:", socket.id);
 
       socket.on("join-queue", async ({ userId, roomId }) => {
-        const user = (await db.user.findUnique({
+        const user = await getUser({
           where: {
             id: userId,
           },
-        })) as User | null;
+        });
 
         if (!user) {
           socket.emit("error", {
