@@ -2,7 +2,7 @@ import Google from "@auth/core/providers/google";
 import NextAuth, { type DefaultSession } from "next-auth";
 import { User } from "@/types/user";
 import { TypeORMAdapter } from "@auth/typeorm-adapter";
-import { dataSourceOptions } from "@/database";
+import { dataSourceOptions } from "@/database/datasource";
 
 declare module "next-auth" {
   /**

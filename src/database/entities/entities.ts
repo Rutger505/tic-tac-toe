@@ -1,4 +1,5 @@
 import {
+  BaseEntity,
   Column,
   Entity,
   ManyToOne,
@@ -20,8 +21,8 @@ const transformer: Record<"date" | "bigint", ValueTransformer> = {
   },
 };
 
-@Entity()
-export class UserEntity {
+@Entity({ name: "users" })
+export class UserEntity extends BaseEntity {
   @PrimaryGeneratedColumn("uuid")
   id!: string;
 
@@ -66,8 +67,8 @@ export class UserEntity {
   updatedAt!: Date;
 }
 
-@Entity()
-export class AccountEntity {
+@Entity({ name: "accounts" })
+export class AccountEntity extends BaseEntity {
   @PrimaryGeneratedColumn("uuid")
   id!: string;
 
@@ -120,8 +121,8 @@ export class AccountEntity {
   user!: UserEntity;
 }
 
-@Entity()
-export class SessionEntity {
+@Entity({ name: "sessions" })
+export class SessionEntity extends BaseEntity {
   @PrimaryGeneratedColumn("uuid")
   id!: string;
 
@@ -138,8 +139,8 @@ export class SessionEntity {
   user!: UserEntity;
 }
 
-@Entity()
-export class VerificationTokenEntity {
+@Entity({ name: "verification_tokens" })
+export class VerificationTokenEntity extends BaseEntity {
   @PrimaryGeneratedColumn("uuid")
   id!: string;
 
@@ -154,7 +155,7 @@ export class VerificationTokenEntity {
 }
 
 @Entity()
-export class FriendshipEntity {
+export class FriendshipEntity extends BaseEntity {
   @PrimaryGeneratedColumn("uuid")
   id!: string;
 
@@ -179,8 +180,8 @@ export class FriendshipEntity {
   createdAt!: Date;
 }
 
-@Entity()
-export class GameEntity {
+@Entity({ name: "games" })
+export class GameEntity extends BaseEntity {
   @PrimaryGeneratedColumn("uuid")
   id!: string;
 
@@ -226,8 +227,8 @@ export class GameEntity {
   updatedAt!: Date;
 }
 
-@Entity()
-export class MoveEntity {
+@Entity({ name: "moves" })
+export class MoveEntity extends BaseEntity {
   @PrimaryGeneratedColumn("uuid")
   id!: string;
 

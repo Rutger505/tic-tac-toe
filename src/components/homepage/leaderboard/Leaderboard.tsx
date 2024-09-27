@@ -1,8 +1,8 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import LeaderboardList from "@/components/homepage/leaderboard/LeaderboardList";
 import { auth } from "@/auth";
-import { userRepository } from "@/database";
 import { IsNull, Not } from "typeorm";
+import { getUserRepository } from "@/database/database";
 
 function getUserWithStats(
   user: {
@@ -81,7 +81,9 @@ export default async function Leaderboard() {
   //   })
   // ).sort((a, b) => b.gamesWon.length - a.gamesWon.length);
 
-  const users = await userRepository.find({
+  const users = await (
+    await getUserRepository()
+  ).find({
     where: {
       name: Not(IsNull()),
       email: Not(IsNull()),
@@ -94,11 +96,13 @@ export default async function Leaderboard() {
     },
   });
 
+  console.log(users);
+
   users.forEach((user) => {
     console.log(user);
   });
 
-  return "test";
+  return JSON.stringify(users);
 
   const currentUser = session
     ? await db.user.findFirst({

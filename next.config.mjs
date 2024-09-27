@@ -11,6 +11,9 @@ const nextConfig = {
             aggregateTimeout: 200,
         },
     }),
+    experimental: {
+        serverComponentsExternalPackages: ['typeorm'],
+    },
 };
 
 export default nextConfig;

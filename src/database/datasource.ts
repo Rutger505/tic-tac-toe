@@ -1,6 +1,5 @@
 import { DataSource, DataSourceOptions } from "typeorm";
-import * as entities from "./entity/entities";
-import { UserEntity } from "./entity/entities";
+import * as entities from "./entities/entities";
 
 const requiredEnvVars = [
   "POSTGRES_HOST",
@@ -27,5 +26,3 @@ export const dataSourceOptions: DataSourceOptions = {
 };
 
 export const appDataSource = new DataSource(dataSourceOptions);
-
-export const userRepository = appDataSource.getRepository(UserEntity);

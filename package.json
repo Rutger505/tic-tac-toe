@@ -12,7 +12,7 @@
     "start": "next start",
     "ws-prod": "bun src/app/api/websockets.ts",
     "lint": "next lint",
-    "typeorm": "dotenv -e .env -- typeorm-ts-node-commonjs -d ./src/database/index.ts"
+    "typeorm": "dotenv -e .env -- typeorm-ts-node-commonjs -d src/database/datasource.ts"
   },
   "dependencies": {
     "@auth/typeorm-adapter": "^2.5.0",
