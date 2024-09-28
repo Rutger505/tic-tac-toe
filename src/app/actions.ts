@@ -56,14 +56,14 @@ function getUserStatsInTimespan(
 export async function getLeaderboard() {
   const session = await auth();
 
-  const users = await db.user.findMany({
-    include: {
-      gamesPlayerO: true,
-      gamesPlayerX: true,
-    },
-  });
-
-  console.log(users);
+  const users = (
+    await db.user.findMany({
+      include: {
+        gamesPlayerO: true,
+        gamesPlayerX: true,
+      },
+    })
+  ).filter(isUser) as UserWithGames[];
 
   const top10DailyUsers = users
     .map((user) => getUserStatsInTimespan(user, "daily"))
@@ -75,7 +75,7 @@ export async function getLeaderboard() {
     .map((user) => getUserStatsInTimespan(user))
     .slice(0, 10);
 
-  let currentUser = session
+  let databaseCurrentUser = session
     ? await db.user.findUnique({
         where: {
           id: session.user.id,
@@ -91,9 +91,10 @@ export async function getLeaderboard() {
       })
     : null;
 
-  if (currentUser && !isUser(currentUser)) {
-    currentUser = null;
-  }
+  const currentUser: UserWithGames | null =
+    databaseCurrentUser && isUser(databaseCurrentUser)
+      ? (databaseCurrentUser as UserWithGames)
+      : null;
 
   const currentUserDailyStats =
     currentUser && !top10DailyUsers.some((user) => user.id === currentUser.id)
