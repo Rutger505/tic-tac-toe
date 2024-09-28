@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import Leaderboard from "@/components/homepage/leaderboard";
 import Link from "next/link";
+import { getLeaderboard } from "@/app/actions";
 
 export default async function Home() {
   return (
@@ -19,7 +20,7 @@ export default async function Home() {
           </Button>
         </div>
       </div>
-      <Leaderboard />
+      <Leaderboard defaultLeaderboard={await getLeaderboard()} />
     </main>
   );
 }
