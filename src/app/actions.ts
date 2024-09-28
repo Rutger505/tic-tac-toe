@@ -3,6 +3,7 @@
 import { auth } from "@/auth";
 import db from "@/lib/db";
 import { User } from "@prisma/client";
+import { isUser } from "@/lib/user";
 
 function getUserStatsInTimespan(
   user: {
@@ -78,7 +79,7 @@ export async function getLeaderboard() {
     .map((user) => getUserStatsInTimespan(user))
     .slice(0, 10);
 
-  const currentUser = session
+  const databaseCurrentUser = session
     ? await db.user.findUnique({
         where: {
           id: session.user.id,
@@ -93,6 +94,12 @@ export async function getLeaderboard() {
         },
       })
     : null;
+
+  let currentUser = null;
+
+  if (databaseCurrentUser && isUser(databaseCurrentUser)) {
+    currentUser = databaseCurrentUser;
+  }
 
   const currentUserDailyStats =
     currentUser && !top10DailyUsers.some((user) => user.id === currentUser.id)
