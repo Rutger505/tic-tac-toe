@@ -2,30 +2,26 @@
 
 import { auth } from "@/auth";
 import db from "@/lib/db";
-import { User } from "@prisma/client";
+import { User } from "@/types/user";
 import { isUser } from "@/lib/user";
 
+interface Game {
+  id: string;
+  playerXId: string;
+  playerOId: string;
+  winnerId: string | null;
+  state: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+interface UserWithGames extends User {
+  gamesPlayerO: Game[];
+  gamesPlayerX: Game[];
+}
+
 function getUserStatsInTimespan(
-  user: {
-    gamesPlayerO: {
-      id: string;
-      playerXId: string;
-      playerOId: string;
-      winnerId: string | null;
-      state: number;
-      createdAt: Date;
-      updatedAt: Date;
-    }[];
-    gamesPlayerX: {
-      id: string;
-      playerXId: string;
-      playerOId: string;
-      winnerId: string | null;
-      state: number;
-      createdAt: Date;
-      updatedAt: Date;
-    }[];
-  } & User,
+  user: UserWithGames,
   period?: "daily" | "weekly",
 ) {
   const games = [...user.gamesPlayerO, ...user.gamesPlayerX];
@@ -79,7 +75,7 @@ export async function getLeaderboard() {
     .map((user) => getUserStatsInTimespan(user))
     .slice(0, 10);
 
-  const databaseCurrentUser = session
+  let currentUser = session
     ? await db.user.findUnique({
         where: {
           id: session.user.id,
@@ -95,10 +91,8 @@ export async function getLeaderboard() {
       })
     : null;
 
-  let currentUser = null;
-
-  if (databaseCurrentUser && isUser(databaseCurrentUser)) {
-    currentUser = databaseCurrentUser;
+  if (currentUser && !isUser(currentUser)) {
+    currentUser = null;
   }
 
   const currentUserDailyStats =
