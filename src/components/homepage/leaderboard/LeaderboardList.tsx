@@ -5,10 +5,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { User } from "@/types/user";
 
-interface LeaderboardUser {
-  id: string;
-  name: string;
+export interface LeaderboardUser extends User {
   wins: number;
   winPercentage: number;
 }
