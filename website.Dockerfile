@@ -30,12 +30,13 @@ RUN npm ci
 
 FROM base AS builder
 
-ENV NODE_ENV=production
+# Code contains url using this environment variable and gets type checked.
+ENV BASE_URL=http://example.com/
 
 WORKDIR /app
 
-COPY . .
 COPY --from=dependencies /app/node_modules ./node_modules
+COPY . .
 
 RUN npx prisma generate
 
