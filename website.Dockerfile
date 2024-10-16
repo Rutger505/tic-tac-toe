@@ -3,10 +3,9 @@ FROM node:20-alpine AS base
 # TODO whats this?
 RUN apk add --no-cache gcompat
 
+WORKDIR /app
 
 FROM base AS development
-
-WORKDIR /app
 
 COPY . .
 
@@ -21,8 +20,6 @@ CMD ["npm", "run", "next-dev"]
 
 FROM base AS dependencies
 
-WORKDIR /app
-
 COPY package.json package-lock.json ./
 
 RUN npm ci
@@ -30,10 +27,10 @@ RUN npm ci
 
 FROM base AS builder
 
+ENV NODE_ENV=production
+
 # Code contains url using this environment variable and gets type checked.
 ENV BASE_URL=http://example.com/
-
-WORKDIR /app
 
 COPY --from=dependencies /app/node_modules ./node_modules
 COPY . .
@@ -46,8 +43,6 @@ RUN npm run build
 FROM base AS production
 
 ENV NODE_ENV=production
-
-WORKDIR /app
 
 EXPOSE 3000
 
