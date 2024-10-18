@@ -1,0 +1,25 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: prisma-migrate
+spec:
+  template:
+    spec:
+      containers:
+      - name: prisma-migrate
+        image: node:16-alpine
+        command: ["/bin/sh", "-c"]
+        args:
+          - npx prisma migrate reset --force;
+        envFrom:
+          - secretRef:
+              name: tic-tac-toe
+        volumeMounts:
+          - name: prisma-source
+            mountPath: /app/prisma
+        workingDir: /app
+      restartPolicy: OnFailure
+      volumes:
+        - name: prisma-source
+          configMap:
+            name: prisma-source
