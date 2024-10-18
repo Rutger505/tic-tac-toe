@@ -4,7 +4,7 @@ metadata:
   name: tic-tac-toe-websocket
 spec:
   selector:
-    app: tic-tac-toe-websocket
+    app: tic-tac-toe
   ports:
     - protocol: TCP
       port: 80
