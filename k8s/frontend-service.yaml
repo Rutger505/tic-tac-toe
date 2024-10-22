@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: tic-tac-toe-frontend
+  name: tic-tac-toe-frontend-service
 spec:
   selector:
-    app: tic-tac-toe
+    app: tic-tac-toe-deployment
   ports:
     - protocol: TCP
       port: 80

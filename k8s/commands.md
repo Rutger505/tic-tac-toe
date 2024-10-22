@@ -1,10 +1,10 @@
 # Kubernetes commands 
 
 # Restart deployment
-kubectl rollout restart deployment/tic-tac-toe
+kubectl rollout restart deployment/tic-tac-toe-deployment
 
 ## Config
-kubectl create configmap tic-tac-toe --from-literal=KEY=VALUE
+kubectl create configmap tic-tac-toe-config --from-literal=KEY=VALUE
 
 ## Secret
-kubectl create secret generic tic-tac-toe --from-literal=KEY=VALUE
+kubectl create secret generic tic-tac-toe-secret --from-literal=KEY=VALUE

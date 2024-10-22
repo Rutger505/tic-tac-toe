@@ -1,24 +1,24 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: tic-tac-toe
+  name: tic-tac-toe-ingress
 spec:
   ingressClassName: nginx
   rules:
     - host: tic-tac-toe.localtest.me
       http:
         paths:
-        - path: /socket
-          pathType: Prefix
-          backend:
-            service:
-              name: tic-tac-toe-websocket
-              port:
-                number: 80
         - path: /
           pathType: Prefix
           backend:
             service:
-              name: tic-tac-toe-frontend
+              name: tic-tac-toe-frontend-service
+              port:
+                number: 80
+        - path: /socket
+          pathType: Prefix
+          backend:
+            service:
+              name: tic-tac-toe-websocket-service
               port:
                 number: 80
