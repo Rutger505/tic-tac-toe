@@ -14,7 +14,7 @@ spec:
     spec:
       initContainers:
         - name: tic-tac-toe-migrate
-          image: rutger505/tic-tac-toe-websocket:1.2.2
+          image: rutger505/tic-tac-toe-websocket:1.2.3
           command: [ "npx", "prisma", "migrate", "deploy" ]
           envFrom:
             - configMapRef:
@@ -23,7 +23,7 @@ spec:
                 name: tic-tac-toe-secret
       containers:
         - name: tic-tac-toe-frontend
-          image: rutger505/tic-tac-toe-frontend:1.2.2
+          image: rutger505/tic-tac-toe-frontend:1.2.3
           ports:
             - containerPort: 3000
           envFrom:
@@ -32,7 +32,7 @@ spec:
             - secretRef:
                 name: tic-tac-toe-secret
         - name: tic-tac-toe-websocket
-          image: rutger505/tic-tac-toe-websocket:1.2.2
+          image: rutger505/tic-tac-toe-websocket:1.2.3
           ports:
             - containerPort: 3001
           envFrom:
