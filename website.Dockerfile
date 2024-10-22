@@ -32,8 +32,8 @@ ENV NODE_ENV=production
 # Code contains url using this environment variable and gets type checked.
 ENV BASE_URL=http://example.com/
 
-COPY --from=dependencies /app/node_modules ./node_modules
 COPY . .
+COPY --from=dependencies /app/node_modules ./node_modules
 
 RUN npx prisma generate
 
