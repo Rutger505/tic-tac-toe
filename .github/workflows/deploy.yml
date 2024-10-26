@@ -12,7 +12,7 @@ on:
 
 jobs:
   deploy-database:
-    uses: rutger505/kubernetes-infra/.github/workflows/deploy-database.yaml@add-database-deploy
+    uses: rutger505/kubernetes-infra/.github/workflows/deploy-database.yaml@add-database-deploy # TODO main
     with:
       database: tic-tac-toe
     secrets:
