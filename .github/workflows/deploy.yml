@@ -4,6 +4,7 @@ name: Deploy
 #  push:
 #    tags:
 #      - '*'
+
 on:
   push:
     branches:
