@@ -19,4 +19,3 @@ jobs:
       postgres_user: ${{ secrets.POSTGRES_USER }}
       postgres_password: ${{ secrets.POSTGRES_PASSWORD }}
 
-
