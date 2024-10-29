@@ -10,11 +10,87 @@ on:
       - migrate-to-k8s
 
 jobs:
-  deploy-database:
-    uses: rutger505/kubernetes-infra/.github/workflows/deploy-database.yaml@add-database-deploy # TODO main
-    with:
-      database: tic-tac-toe
-    secrets:
-      kubeconfig: ${{ secrets.KUBECONFIG }}
-      postgres_user: ${{ secrets.POSTGRES_USER }}
-      postgres_password: ${{ secrets.POSTGRES_PASSWORD }}
+  #  deploy-database:
+  #    uses: rutger505/kubernetes-infra/.github/workflows/deploy-database.yaml@add-database-deploy # TODO main
+  #    with:
+  #      database: tic-tac-toe
+  #    secrets:
+  #      kubeconfig: ${{ secrets.KUBECONFIG }}
+  #      postgres_user: ${{ secrets.POSTGRES_USER }}
+  #      postgres_password: ${{ secrets.POSTGRES_PASSWORD }}
+  build-front-end-docker-image:
+    name: Build front-end Docker image
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push website Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: website.Dockerfile
+          push: true
+          tags: rutger505/tic-tac-toe-frontend:1.2.3
+
+  build-websocket-docker-image:
+    name: Build WebSocket Docker image
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push website Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: websocket.Dockerfile
+          push: true
+          tags: rutger505/tic-tac-toe-websocket:1.2.3
+
+  deploy-to-kubernetes:
+    name: Deploy to Kubernetes
+    runs-on: ubuntu-latest
+    #    needs:
+    #      - build-front-end-docker-image
+    #      - build-websocket-docker-image
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: azure/setup-kubectl@v4
+        with:
+          version: '1.31.0'
+
+      - name: Kubernetes Set Context
+        uses: Azure/k8s-set-context@v4.0.1
+        with:
+          method: kubeconfig
+          kubeconfig: ${{ secrets.KUBECONFIG }}
+
+      - name: Fill Kubernetes manifests with environment variables
+        run: |
+          # TODO: check
+          #          envsubst < k8s/website-deployment.yaml | tee k8s/website-deployment.yaml
+          #          envsubst < k8s/websocket-deployment.yaml | tee k8s/websocket-deployment.yaml
+
+      - name: Deploy to Kubernetes
+        uses: Azure/k8s-deploy@v5
+        with:
+          manifests: |
+            k8s/
+          images: |
+            rutger505/tic-tac-toe-frontend:1.2.3
+            rutger505/tic-tac-toe-websocket:1.2.3
