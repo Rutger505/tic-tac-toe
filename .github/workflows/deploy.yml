@@ -74,27 +74,52 @@ jobs:
         with:
           version: '1.31.0'
 
+      - name: Say hi
+        run: Write-Host "Hello from PowerShell"
+        shell: pwsh
+
+      - name: Install powershell
+        uses: cakhanif/action-install-powershell@v1
+
+
       - name: Kubernetes Set Context
         uses: Azure/k8s-set-context@v4.0.1
         with:
           method: kubeconfig
           kubeconfig: ${{ secrets.KUBECONFIG }}
 
-      - name: Insert environment variables into Kubernetes files
+      - name: Show files in k8s directory
         run: |
-          # TODO: get correct environment variables...
-          # TODO: check there is a composite action for this.
-
           FILES=$(ls k8s/*.yaml | tr '\n' ' ')
 
           for FILE in $FILES; do
-            echo "Processing $FILE"
-
-            envsubst < $FILE > /tmp/envsubst || exit 1
-
-            mv /tmp/envsubst $FILE || exit 1
+            echo "$FILE":
+            cat $FILE
           done
 
+      - name: Insert environment variables into Kubernetes files
+        uses: jonlabelle/replace-tokens-action@v1
+        with:
+          paths: k8s/configmap.yaml
+          filter: "*.yaml"
+          fail: true
+          style: envsubst
+        env:
+          AUTH_SECRET: auth-secret
+          DATABASE_URL: database-url
+          BASE_URL: base-url
+          AUTH_TRUST_HOST: auth-trust-host
+          AUTH_GOOGLE_ID: auth-google-client-id
+          AUTH_GOOGLE_SECRET: auth-google-client-secret
+
+      - name: Show files in k8s directory
+        run: |
+          FILES=$(ls k8s/*.yaml | tr '\n' ' ')
+          
+          for FILE in $FILES; do
+            echo "$FILE":
+            cat $FILE
+          done
 
       - name: Deploy to Kubernetes
         uses: Azure/k8s-deploy@v5
