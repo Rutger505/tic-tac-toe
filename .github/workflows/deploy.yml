@@ -80,11 +80,21 @@ jobs:
           method: kubeconfig
           kubeconfig: ${{ secrets.KUBECONFIG }}
 
-      - name: Fill Kubernetes manifests with environment variables
+      - name: Insert environment variables into Kubernetes files
         run: |
-          # TODO: check
-          #          envsubst < k8s/website-deployment.yaml | tee k8s/website-deployment.yaml
-          #          envsubst < k8s/websocket-deployment.yaml | tee k8s/websocket-deployment.yaml
+          # TODO: get correct environment variables...
+          # TODO: check there is a composite action for this.
+
+          FILES=$(ls k8s/*.yaml | tr '\n' ' ')
+
+          for FILE in $FILES; do
+            echo "Processing $FILE"
+
+            envsubst < $FILE > /tmp/envsubst || exit 1
+
+            mv /tmp/envsubst $FILE || exit 1
+          done
+
 
       - name: Deploy to Kubernetes
         uses: Azure/k8s-deploy@v5
