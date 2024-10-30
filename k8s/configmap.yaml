@@ -3,6 +3,9 @@ kind: ConfigMap
 metadata:
   name: tic-tac-toe-config
 data:
-  BASE_URL: "$BASE_URL"
-  AUTH_TRUST_HOST: "$AUTH_TRUST_HOST"
-  AUTH_URL: "$BASE_URL"
+  BASE_URL: "${BASE_URL}"
+  AUTH_TRUST_HOST: "true"
+  AUTH_URL: "${BASE_URL}"
+  POSTGRES_HOST: "postgres-service.default.svc"
+  POSTGRES_DATABASE: "tic-tac-toe"
+

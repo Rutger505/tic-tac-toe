@@ -70,17 +70,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install Powershell in act
+        if: ${{ env.ACT }} # Powershell is not installed by default in nektos/act.
+        uses: cakhanif/action-install-powershell@v1
+
       - uses: azure/setup-kubectl@v4
         with:
           version: 'v1.31.0'
-
-      - name: Say hi
-        run: Write-Host "Hello from PowerShell"
-        shell: pwsh
-
-      - name: Install powershell
-        uses: cakhanif/action-install-powershell@v1
-
 
       - name: Kubernetes Set Context
         uses: Azure/k8s-set-context@v4.0.1
@@ -91,26 +87,25 @@ jobs:
       - name: Show files in k8s directory
         run: |
           FILES=$(ls k8s/*.yaml | tr '\n' ' ')
-
+          
           for FILE in $FILES; do
             echo "$FILE":
             cat $FILE
           done
 
+        # TODO switch to something without powershell dependency
       - name: Insert environment variables into Kubernetes files
         uses: jonlabelle/replace-tokens-action@v1
         with:
-          paths: k8s/configmap.yaml
+          paths: k8s/
           filter: "*.yaml"
           fail: true
           style: envsubst
         env:
-          AUTH_SECRET: auth-secret
-          DATABASE_URL: database-url
-          BASE_URL: base-url
-          AUTH_TRUST_HOST: auth-trust-host
-          AUTH_GOOGLE_ID: auth-google-client-id
-          AUTH_GOOGLE_SECRET: auth-google-client-secret
+          BASE_URL: ${{ env.BASE_URL }}
+          AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
+          AUTH_GOOGLE_ID: ${{ secrets.AUTH_GOOGLE_ID }}
+          AUTH_GOOGLE_SECRET: ${{ secrets.AUTH_GOOGLE_SECRET }}
 
       - name: Show files in k8s directory
         run: |
