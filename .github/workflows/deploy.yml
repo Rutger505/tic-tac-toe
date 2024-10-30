@@ -83,15 +83,6 @@ jobs:
           method: kubeconfig
           kubeconfig: ${{ secrets.KUBECONFIG }}
 
-      - name: Show files in k8s directory
-        run: |
-          FILES=$(ls k8s/*.yaml | tr '\n' ' ')
-          
-          for FILE in $FILES; do
-            echo "$FILE":
-            cat $FILE
-          done
-
       - name: Insert environment variables into Kubernetes files
         run: |
           FILES=$(ls k8s/*.yaml | tr '\n' ' ')
@@ -109,15 +100,7 @@ jobs:
           AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
           AUTH_GOOGLE_ID: ${{ secrets.AUTH_GOOGLE_ID }}
           AUTH_GOOGLE_SECRET: ${{ secrets.AUTH_GOOGLE_SECRET }}
-
-      - name: Show files in k8s directory
-        run: |
-          FILES=$(ls k8s/*.yaml | tr '\n' ' ')
-          
-          for FILE in $FILES; do
-            echo "$FILE":
-            cat $FILE
-          done
+          TAG_NAME: 1.2.3
 
       - name: Deploy to Kubernetes
         uses: Azure/k8s-deploy@v5

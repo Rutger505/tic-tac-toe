@@ -14,7 +14,7 @@ spec:
     spec:
       initContainers:
         - name: tic-tac-toe-migrate
-          image: rutger505/tic-tac-toe-websocket:1.2.3
+          image: rutger505/tic-tac-toe-websocket:$TAG_NAME
           command: [ "npx", "prisma", "migrate", "deploy" ]
           envFrom:
             - configMapRef:
@@ -37,7 +37,7 @@ spec:
 
       containers:
         - name: tic-tac-toe-frontend
-          image: rutger505/tic-tac-toe-frontend:1.2.3
+          image: rutger505/tic-tac-toe-frontend:$TAG_NAME
           ports:
             - containerPort: 3000
           envFrom:
@@ -59,7 +59,7 @@ spec:
                   name: postgres-secret
                   key: POSTGRES_PASSWORD
         - name: tic-tac-toe-websocket
-          image: rutger505/tic-tac-toe-websocket:1.2.3
+          image: rutger505/tic-tac-toe-websocket:$TAG_NAME
           ports:
             - containerPort: 3001
           envFrom:
