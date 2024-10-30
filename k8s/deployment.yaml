@@ -15,8 +15,10 @@ spec:
       initContainers:
         - name: tic-tac-toe-migrate
           image: rutger505/tic-tac-toe-websocket:$TAG_NAME
-          #          command: [ "npx", "prisma", "migrate", "deploy" ]
-          command: [ "echo", "$POSTGRES_URL" ]
+          command:
+            - "/bin/bash"
+            - "-c"
+            - npx prisma migrate deploy
           envFrom:
             - configMapRef:
                 name: tic-tac-toe-config
