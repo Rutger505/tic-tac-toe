@@ -70,10 +70,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Powershell in act
-        if: ${{ env.ACT }} # Powershell is not installed by default in nektos/act.
-        uses: cakhanif/action-install-powershell@v1
-
       - uses: azure/setup-kubectl@v4
         with:
           version: 'v1.31.0'
@@ -93,14 +89,10 @@ jobs:
             cat $FILE
           done
 
-        # TODO switch to something without powershell dependency
       - name: Insert environment variables into Kubernetes files
-        uses: jonlabelle/replace-tokens-action@v1
+        uses: dominicwatson/github-action-envsubst@v1
         with:
-          paths: k8s/
-          filter: "*.yaml"
-          fail: true
-          style: envsubst
+          files: $(ls k8s/*.yaml | tr '\n' ' ')
         env:
           BASE_URL: ${{ env.BASE_URL }}
           AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
