@@ -2,6 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: tic-tac-toe-config
+  namespace: tic-tac-toe-$ENVIRONMENT
 data:
   BASE_URL: "${BASE_URL}"
   AUTH_TRUST_HOST: "true"
