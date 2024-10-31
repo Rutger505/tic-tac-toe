@@ -7,6 +7,6 @@ data:
   BASE_URL: "${BASE_URL}"
   AUTH_TRUST_HOST: "true"
   AUTH_URL: "${BASE_URL}"
-  POSTGRES_HOST: "postgres-service.default.svc.cluster.local"
+  POSTGRES_HOST: "postgres-service.postgres-$ENVIRONMENT.svc.cluster.local"
   POSTGRES_DATABASE: "tic-tac-toe"
 
