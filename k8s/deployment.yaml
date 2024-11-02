@@ -15,7 +15,7 @@ spec:
     spec:
       initContainers:
         - name: tic-tac-toe-migrate
-          image: rutger505/tic-tac-toe-websocket:$TAG_NAME
+          image: rutger505/tic-tac-toe-websocket:${TAG}
           command:
             - "/bin/bash"
             - "-c"
@@ -31,7 +31,7 @@ spec:
 
       containers:
         - name: tic-tac-toe-frontend
-          image: rutger505/tic-tac-toe-frontend:$TAG_NAME
+          image: rutger505/tic-tac-toe-frontend:${TAG}
           ports:
             - containerPort: 3000
           envFrom:
@@ -43,7 +43,7 @@ spec:
             - name: DATABASE_URL
               value: "postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@$(POSTGRES_HOST):5432/$(POSTGRES_DATABASE)"
         - name: tic-tac-toe-websocket
-          image: rutger505/tic-tac-toe-websocket:$TAG_NAME
+          image: rutger505/tic-tac-toe-websocket:${TAG}
           ports:
             - containerPort: 3001
           envFrom:

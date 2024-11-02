@@ -131,10 +131,12 @@ jobs:
             ENVIRONMENT=production
             INGRESS_HOST=${{ vars.BASE_DOMAIN }}
             CLUSTER_ISSUER_NAME=letsencrypt-production
+            POSTGRES_NAMESPACE=postgres-production
           else
             ENVIRONMENT=pr-${{ github.event.pull_request.number }}
             INGRESS_HOST=${{ github.sha }}.${{ vars.BASE_DOMAIN }}
             CLUSTER_ISSUER_NAME=letsencrypt-staging
+            POSTGRES_NAMESPACE=postgres-test
           fi
           
           echo "Setting environment to $ENVIRONMENT"
@@ -145,6 +147,9 @@ jobs:
           
           echo "Setting cluster issuer name to $CLUSTER_ISSUER_NAME"
           echo "cluster_issuer_name=$CLUSTER_ISSUER_NAME" >> $GITHUB_OUTPUT
+          
+          echo "Setting postgres_namespace to $POSTGRES_NAMESPACE"
+          echo "postgres_namespace=$POSTGRES_NAMESPACE" >> $GITHUB_OUTPUT
           
           NAMESPACE=$APP_NAME-$ENVIRONMENT
           echo "Setting namespace to $NAMESPACE"
@@ -174,6 +179,7 @@ jobs:
           AUTH_GOOGLE_SECRET: ${{ secrets.AUTH_GOOGLE_SECRET }}
           POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_NAMESPACE: ${{ steps.config.outputs.postgres_namespace }}
         run: |
           FILES=$(ls k8s/*.yaml | tr '\n' ' ')
           
