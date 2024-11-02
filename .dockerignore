@@ -18,7 +18,9 @@ tests
 README.md
 *.md
 *.txt
+# Act
 act
+*event.json
 
 # Build
 .next

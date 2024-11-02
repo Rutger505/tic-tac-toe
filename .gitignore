@@ -43,3 +43,5 @@ next-env.d.ts
 
 .secrets
 .vars
+
+*event.json
