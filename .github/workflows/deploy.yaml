@@ -58,7 +58,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: websocket.Dockerfile
+          file: website.Dockerfile
           push: true
           tags: ${{ steps.config.outputs.docker_image }}:${{ steps.config.outputs.tag }}
           cache-from: type=registry,ref=${{ steps.config.outputs.docker_image }}:cache
@@ -81,9 +81,9 @@ jobs:
           # Set environment and hosts
           if [[ $GITHUB_REF == refs/tags/* ]]; then
             TAG=$GITHUB_REF_NAME
-            DOCKER_IMAGE=${{ env.DOCKER_IMAGE_PREFIX }}-frontend
+            DOCKER_IMAGE=${{ env.DOCKER_IMAGE_PREFIX }}-websocket
           else
-            DOCKER_IMAGE=${{ env.DOCKER_IMAGE_PREFIX }}-frontend
+            DOCKER_IMAGE=${{ env.DOCKER_IMAGE_PREFIX }}-websocket
             TAG=$GITHUB_SHA
           fi
           
