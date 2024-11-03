@@ -14,10 +14,12 @@ declare module "next-auth" {
   }
 }
 
+const isTest = process.env.ENVIRONMENT !== "production";
+
 export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: PrismaAdapter(db),
   providers: [
-    process.env.NODE_ENV === "production"
+    isTest
       ? Google({
           profile(profile) {
             return {

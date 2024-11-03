@@ -9,4 +9,5 @@ data:
   AUTH_URL: "${BASE_URL}"
   POSTGRES_HOST: "postgres-service.${POSTGRES_NAMESPACE}.svc.cluster.local"
   POSTGRES_DATABASE: "tic-tac-toe"
+  ENVIRONMENT: "${ENVIRONMENT}"
 
