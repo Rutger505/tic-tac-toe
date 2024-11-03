@@ -115,11 +115,14 @@ jobs:
 #    needs: TODO
 #      - build-front-end-docker-image
 #      - build-websocket-docker-image
-    env:
-      ENVIRONMENT:  ${{ startsWith(github.ref, 'refs/tags/') && 'production' || format('pr-{0}', github.event.pull_request.number) }}
+
+    strategy:
+      matrix:
+        environment:
+          - ${{ startsWith(github.ref, 'refs/tags/') && 'production' || format('pr-{0}', github.event.pull_request.number) }}
 
     environment:
-      name: ${{ env.ENVIRONMENT }}
+      name: ${{ matrix.environment }}
       url: https://${{ steps.config.outputs.ingress_host }}
 
     steps:
