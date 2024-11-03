@@ -5,6 +5,10 @@ metadata:
   namespace: tic-tac-toe-$ENVIRONMENT
 spec:
   ingressClassName: nginx
+  tls:
+    - hosts:
+        - ${INGRESS_HOST}
+      secretName: tic-tac-toe-tls
   rules:
     - host: ${INGRESS_HOST}
       http:
