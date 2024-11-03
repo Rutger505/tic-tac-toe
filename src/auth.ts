@@ -72,14 +72,5 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           },
         }),
   ],
-  ...(!isProduction && {
-    callbacks: {
-      async session(session, user) {
-        console.log("session", { session, user });
-        session.user = { ...session.user, ...user };
-        return session;
-      },
-    },
-  }),
   debug: !isProduction,
 });
