@@ -116,7 +116,7 @@ jobs:
 #      - build-front-end-docker-image
 #      - build-websocket-docker-image
     environment:
-      name: ${{ startsWith(github.ref, 'refs/tags/') && 'production' || format('pr-{0}', github.event.pull_request.number) }}
+      name: pr-26 #TODO fix: ${{ startsWith(github.ref, 'refs/tags/') && 'production' || format('pr-{0}', github.event.pull_request.number) }}
       url: https://${{ steps.config.outputs.ingress_host }}
 
     steps:
