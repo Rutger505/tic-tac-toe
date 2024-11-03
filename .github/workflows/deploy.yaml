@@ -33,7 +33,6 @@ jobs:
       - name: Generate build config
         id: config
         run: |
-          # Set environment and hosts
           if [[ $GITHUB_REF == refs/tags/* ]]; then
             TAG=$GITHUB_REF_NAME
             DOCKER_IMAGE=${{ env.DOCKER_IMAGE_PREFIX }}-frontend
@@ -78,7 +77,6 @@ jobs:
       - name: Generate build config
         id: config
         run: |
-          # Set environment and hosts
           if [[ $GITHUB_REF == refs/tags/* ]]; then
             TAG=$GITHUB_REF_NAME
             DOCKER_IMAGE=${{ env.DOCKER_IMAGE_PREFIX }}-websocket
@@ -132,21 +130,15 @@ jobs:
       - name: Generate deployment config
         id: config
         run: |
-          # Set environment and hosts
           if [[ $GITHUB_REF == refs/tags/* ]]; then
-            ENVIRONMENT=production
             INGRESS_HOST=${{ vars.BASE_DOMAIN }}
             CLUSTER_ISSUER_NAME=letsencrypt-production
             POSTGRES_NAMESPACE=postgres-production
           else
-            ENVIRONMENT=pr-${{ github.event.pull_request.number }}
             INGRESS_HOST=${{ github.sha }}.${{ vars.BASE_DOMAIN }}
             CLUSTER_ISSUER_NAME=letsencrypt-staging
             POSTGRES_NAMESPACE=postgres-test
           fi
-          
-          echo "Setting environment to $ENVIRONMENT"
-          echo "environment=$ENVIRONMENT" >> $GITHUB_OUTPUT
           
           echo "Setting ingress host to $INGRESS_HOST"
           echo "ingress_host=$INGRESS_HOST" >> $GITHUB_OUTPUT
@@ -157,7 +149,7 @@ jobs:
           echo "Setting postgres_namespace to $POSTGRES_NAMESPACE"
           echo "postgres_namespace=$POSTGRES_NAMESPACE" >> $GITHUB_OUTPUT
           
-          NAMESPACE=$APP_NAME-$ENVIRONMENT
+          NAMESPACE=$APP_NAME-${{ matrix.environment }}
           echo "Setting namespace to $NAMESPACE"
           echo "namespace=$NAMESPACE" >> $GITHUB_OUTPUT
 
@@ -177,7 +169,7 @@ jobs:
 
       - name: Insert environment variables into Kubernetes files
         env:
-          ENVIRONMENT: ${{ steps.config.outputs.environment }}
+          ENVIRONMENT: ${{ matrix.environment }}
           NAMESPACE: ${{ steps.config.outputs.namespace }}
           TAG: ${{ needs.build-front-end-docker-image.outputs.tag }}
           INGRESS_HOST: ${{ steps.config.outputs.ingress_host }}
@@ -194,18 +186,8 @@ jobs:
           
           for FILE in $FILES; do
             echo "Processing $FILE"
-            
-            if [[ $FILE == "k8s/secret.yaml" ]]; then
-                cat $FILE 
-            fi
-          
-          
             envsubst < $FILE > /tmp/envsubst || exit 1
             mv /tmp/envsubst $FILE || exit 1
-          
-            if [[ $FILE == "k8s/secret.yaml" ]]; then
-                  cat $FILE 
-            fi
           done
 
       - name: Deploy to Kubernetes
