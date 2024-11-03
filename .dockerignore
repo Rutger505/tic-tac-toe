@@ -57,3 +57,6 @@ Thumbs.db
 
 # Docs
 docs
+
+# Deployment
+k8s
