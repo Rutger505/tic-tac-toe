@@ -115,8 +115,11 @@ jobs:
 #    needs: TODO
 #      - build-front-end-docker-image
 #      - build-websocket-docker-image
+    env:
+      ENVIRONMENT:  ${{ startsWith(github.ref, 'refs/tags/') && 'production' || format('pr-{0}', github.event.pull_request.number) }}
+
     environment:
-      name: pr-26 #TODO fix: ${{ startsWith(github.ref, 'refs/tags/') && 'production' || format('pr-{0}', github.event.pull_request.number) }}
+      name: pr-26
       url: https://${{ steps.config.outputs.ingress_host }}
 
     steps:
@@ -171,7 +174,7 @@ jobs:
 
       - name: Debug environment
         run: |
-          echo "Environment  2 name: ${{ environment.name }}"
+          echo "Environment  2 name: ${{ env.ENVIRONMENT }}"
           echo "POSTGRES_USER: ${{ secrets.POSTGRES_USER }}"
           echo "POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}"
       
