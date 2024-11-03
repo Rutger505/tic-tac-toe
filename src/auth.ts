@@ -4,7 +4,6 @@ import db from "@/lib/db";
 import NextAuth, { type DefaultSession } from "next-auth";
 import { User } from "@/types/user";
 import Credentials from "@auth/core/providers/credentials";
-import { createHash } from "@auth/core/lib/utils/web";
 
 declare module "next-auth" {
   /**
@@ -36,7 +35,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             password: { label: "Password", type: "password", required: true },
           },
           async authorize(credentials) {
-            const id = await createHash(credentials.username);
+            const hash = await crypto.subtle.digest(
+              "SHA-256",
+              credentials.username,
+            );
+            const id = Array.from(new Uint8Array(hash)).join("");
 
             return {
               id: id,
