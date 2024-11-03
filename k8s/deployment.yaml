@@ -37,7 +37,7 @@ spec:
             - secretRef:
                 name: tic-tac-toe-secret
           env:
-            - name: DATABASE_URL
+            - name: POSTGRES_URL
               value: "postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@$(POSTGRES_HOST):5432/$(POSTGRES_DATABASE)"
         - name: tic-tac-toe-websocket
           image: rutger505/tic-tac-toe-websocket:${TAG}
@@ -49,5 +49,5 @@ spec:
             - secretRef:
                 name: tic-tac-toe-secret
           env:
-            - name: DATABASE_URL
+            - name: POSTGRES_URL
               value: "postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@$(POSTGRES_HOST):5432/$(POSTGRES_DATABASE)"
