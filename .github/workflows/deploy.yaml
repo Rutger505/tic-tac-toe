@@ -112,9 +112,9 @@ jobs:
   deploy-to-kubernetes:
     name: Deploy to Kubernetes
     runs-on: ubuntu-latest
-#    needs: TODO
-#      - build-front-end-docker-image
-#      - build-websocket-docker-image
+    needs:
+      - build-front-end-docker-image
+      - build-websocket-docker-image
 
     strategy:
       matrix:
@@ -175,17 +175,11 @@ jobs:
           method: kubeconfig
           kubeconfig: ${{ secrets.KUBECONFIG }}
 
-      - name: Debug environment
-        run: |
-          echo "Environment  2 name: ${{ env.ENVIRONMENT }}"
-          echo "POSTGRES_USER: ${{ secrets.POSTGRES_USER }}"
-          echo "POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}"
-      
       - name: Insert environment variables into Kubernetes files
         env:
           ENVIRONMENT: ${{ steps.config.outputs.environment }}
           NAMESPACE: ${{ steps.config.outputs.namespace }}
-          TAG: blabla # TODO:  ${{ needs.build-front-end-docker-image.outputs.tag }}
+          TAG: ${{ needs.build-front-end-docker-image.outputs.tag }}
           INGRESS_HOST: ${{ steps.config.outputs.ingress_host }}
           CLUSTER_ISSUER_NAME: ${{ steps.config.outputs.cluster_issuer_name }}
           BASE_URL: https://${{ steps.config.outputs.ingress_host }}
