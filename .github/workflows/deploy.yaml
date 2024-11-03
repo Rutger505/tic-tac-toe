@@ -171,7 +171,7 @@ jobs:
 
       - name: Debug environment
         run: |
-          echo "Environment name: ${{ environment.name }}"
+          echo "Environment  2 name: ${{ environment.name }}"
           echo "POSTGRES_USER: ${{ secrets.POSTGRES_USER }}"
           echo "POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}"
       
