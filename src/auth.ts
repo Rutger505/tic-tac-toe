@@ -43,13 +43,25 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             const hash = await crypto.subtle.digest("SHA-256", data);
             const id = Array.from(new Uint8Array(hash)).join("");
 
+            const user = await db.user.upsert({
+              where: { email: `${credentials.username}@example.com` },
+              update: {},
+              create: {
+                id: id,
+                name: credentials.username,
+                email: `${credentials.username}@example.com`,
+                image: "https://placehold.co/64x64",
+              },
+            });
+
             return {
-              id: id,
-              name: `${credentials.username}`,
-              email: `${credentials.username}@example.com`,
-              image: "https://placehold.co/64x64",
+              id: user.id,
+              name: user.name,
+              email: user.email,
+              image: user.image,
             };
           },
         }),
   ],
+  debug: !isProduction,
 });
