@@ -35,10 +35,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             password: { label: "Password", type: "password", required: true },
           },
           async authorize(credentials) {
-            const hash = await crypto.subtle.digest(
-              "SHA-256",
-              credentials.username,
-            );
+            const data = new TextEncoder().encode(credentials.username);
+            const hash = await crypto.subtle.digest("SHA-256", data);
             const id = Array.from(new Uint8Array(hash)).join("");
 
             return {
