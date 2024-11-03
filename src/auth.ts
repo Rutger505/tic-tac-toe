@@ -51,6 +51,18 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               },
             });
 
+            // Manually create a session
+            const sessionToken = crypto.randomUUID();
+            const expires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
+
+            await db.session.create({
+              data: {
+                sessionToken,
+                userId: user.id,
+                expires,
+              },
+            });
+
             return {
               id: user.id,
               name: user.name,
