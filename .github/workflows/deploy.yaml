@@ -175,6 +175,7 @@ jobs:
           NAMESPACE: ${{ steps.config.outputs.namespace }}
           TAG: ${{ needs.build-front-end-docker-image.outputs.tag }}
           INGRESS_HOST: ${{ steps.config.outputs.ingress_host }}
+          CLUSTER_ISSUER_NAME: ${{ steps.config.outputs.cluster_issuer_name }}
           BASE_URL: https://${{ steps.config.outputs.ingress_host }}
           AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
           AUTH_GOOGLE_ID: ${{ secrets.AUTH_GOOGLE_ID }}
