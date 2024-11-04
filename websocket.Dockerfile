@@ -48,6 +48,7 @@ EXPOSE 3001
 COPY --from=builder /app/src ./src
 # TODO: tsconfig neccessary?
 COPY --from=builder /app/package.json /app/package-lock.json /app/tsconfig.json ./
+COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/node_modules ./node_modules
 
 CMD ["bun", "src/app/api/websockets.ts"]

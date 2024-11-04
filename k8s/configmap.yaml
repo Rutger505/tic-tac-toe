@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: tic-tac-toe-config
+  namespace: tic-tac-toe-$ENVIRONMENT
+data:
+  BASE_URL: "${BASE_URL}"
+  AUTH_TRUST_HOST: "true"
+  AUTH_URL: "${BASE_URL}"
+  POSTGRES_HOST: "postgres-service.${POSTGRES_NAMESPACE}.svc.cluster.local"
+  POSTGRES_DATABASE: "tic-tac-toe"
+  ENVIRONMENT: "${ENVIRONMENT}"
+

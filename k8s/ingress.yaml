@@ -1,0 +1,29 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: tic-tac-toe-ingress
+  namespace: tic-tac-toe-$ENVIRONMENT
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - ${INGRESS_HOST}
+      secretName: tic-tac-toe-tls
+  rules:
+    - host: ${INGRESS_HOST}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: tic-tac-toe-frontend-service
+                port:
+                  number: 80
+          - path: /socket.io
+            pathType: Prefix
+            backend:
+              service:
+                name: tic-tac-toe-websocket-service
+                port:
+                  number: 80

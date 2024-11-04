@@ -13,6 +13,8 @@ declare module "next-auth" {
   }
 }
 
+const isProduction = process.env.ENVIRONMENT === "production";
+
 export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: PrismaAdapter(db),
   providers: [
@@ -27,4 +29,5 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
     }),
   ],
+  debug: !isProduction,
 });

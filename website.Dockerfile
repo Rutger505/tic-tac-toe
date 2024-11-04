@@ -32,8 +32,8 @@ ENV NODE_ENV=production
 # Code contains url using this environment variable and gets type checked.
 ENV BASE_URL=http://example.com/
 
-COPY --from=dependencies /app/node_modules ./node_modules
 COPY . .
+COPY --from=dependencies /app/node_modules ./node_modules
 
 RUN npx prisma generate
 
@@ -50,6 +50,7 @@ COPY --from=builder /app/next.config.mjs ./
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/package.json /app/package-lock.json ./
+COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/node_modules ./node_modules
 
 CMD ["npm", "start"]

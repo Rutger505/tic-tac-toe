@@ -40,3 +40,8 @@ next-env.d.ts
 *.sqlite
 *.db
 *.db-journal
+
+.secrets
+.vars
+
+*event.json
