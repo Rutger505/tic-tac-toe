@@ -18,7 +18,6 @@
 
 # misc
 .DS_Store
-*.pem
 
 # debug
 npm-debug.log*
@@ -45,3 +44,6 @@ next-env.d.ts
 .vars
 
 *event.json
+
+# Ssl
+ssl/

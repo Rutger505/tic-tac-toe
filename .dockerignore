@@ -59,4 +59,5 @@ Thumbs.db
 docs
 
 # Deployment
+Makefile
 k8s
