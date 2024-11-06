@@ -11,20 +11,6 @@ entryPoints:
   web:
     address: :80
 
-http:
-  routers:
-    tic-tac-toe-redirect:
-      rule: HostRegexp(`localhost`)
-      service: tic-tac-toe-website-tic-tac-toe@docker
-      middlewares:
-        - redirect-to-localtest.me
-  middlewares:
-    redirect-to-localtest.me:
-      redirectRegex:
-        regex: ^http://localhost(.*)
-        replacement: http://localtest.me$1
-        permanent: true
-
 providers:
   docker:
     exposedByDefault: true

@@ -32,7 +32,7 @@ services:
         - action: rebuild
           path: package.json
     labels:
-      traefik.http.routers.tic-tac-toe-website.rule: Host(`localtest.me`)
+      traefik.http.routers.tic-tac-toe-website.rule: Host(`localhost`)
     depends_on:
       - postgres
 
@@ -53,7 +53,7 @@ services:
         - action: rebuild
           path: package.json
     labels:
-      traefik.http.routers.tic-tac-toe-websocket.rule: Host(`localtest.me`) && PathPrefix(`/socket.io`)
+      traefik.http.routers.tic-tac-toe-websocket.rule: Host(`localhost`) && PathPrefix(`/socket.io`)
     depends_on:
       - postgres
 
