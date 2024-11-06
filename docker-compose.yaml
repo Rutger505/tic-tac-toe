@@ -1,0 +1,73 @@
+services:
+  proxy:
+    build:
+      context: .
+      dockerfile: traefik.Dockerfile
+    container_name: Proxy
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    develop:
+      watch:
+        - action: rebuild
+          path: traefik.yaml
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+
+  tic-tac-toe-website:
+    build:
+      context: .
+      dockerfile: website.Dockerfile
+      target: development
+    container_name: Tic-tac-toe-Website
+    env_file: .env
+    develop:
+      watch:
+        - action: sync
+          path: .
+          target: /app/
+          ignore:
+            - node_modules/
+        - action: rebuild
+          path: package.json
+    labels:
+      traefik.http.routers.tic-tac-toe-website.rule: Host(`localtest.me`)
+    depends_on:
+      - postgres
+
+  tic-tac-toe-websocket:
+    build:
+      context: .
+      dockerfile: websocket.Dockerfile
+      target: development
+    container_name: Tic-tac-toe-Websocket
+    env_file: .env
+    develop:
+      watch:
+        - action: sync
+          path: .
+          target: /app/
+          ignore:
+            - node_modules/
+        - action: rebuild
+          path: package.json
+    labels:
+      traefik.http.routers.tic-tac-toe-websocket.rule: Host(`localtest.me`) && PathPrefix(`/socket.io`)
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:17
+    container_name: Postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DATABASE}
+    volumes:
+      - tic-tac-toe-postgres:/var/lib/postgresql/data
+    ports:
+      - ${POSTGRES_PORT}:5432
+
+volumes:
+  tic-tac-toe-postgres:
