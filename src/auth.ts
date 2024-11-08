@@ -1,8 +1,9 @@
 import Google from "@auth/core/providers/google";
-import { PrismaAdapter } from "@auth/prisma-adapter";
+import {PrismaAdapter} from "@auth/prisma-adapter";
 import db from "@/lib/db";
-import NextAuth, { type DefaultSession } from "next-auth";
-import { User } from "@/types/user";
+import NextAuth, {type DefaultSession} from "next-auth";
+import {User} from "@/types/user";
+import Credentials from "@auth/core/providers/credentials";
 
 declare module "next-auth" {
   /**
@@ -28,6 +29,35 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         };
       },
     }),
+    Credentials({
+      name: "credentials",
+      credentials: {
+        email: {label: "Email", type: "email"},
+        password: {label: "Password", type: "password"}
+      },
+     async authorize(credentials) {
+        // For testing - create a mock user with the provided credentials
+        const user = {
+          id: "test-user-" + Math.random().toString(36),
+          email: credentials?.email || "test@example.com",
+          image: "https://www.gravatar.com/avatar/",
+          name: "Test User",
+        };
+
+        return user as User;
+      },
+    }),
   ],
+  callbacks: {
+    session: async ({session, user}) => {
+      return {
+        ...session,
+        user: {
+          ...session.user,
+          id: user.id,
+        },
+      };
+    },
+  },
   debug: !isProduction,
 });
